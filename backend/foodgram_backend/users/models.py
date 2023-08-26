@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
