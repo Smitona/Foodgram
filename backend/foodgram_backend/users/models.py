@@ -41,3 +41,18 @@ class CustomUser(AbstractUser):
         return self.username
 
 
+class Follow(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Подписчик',
+        on_delete=models.CASCADE,
+        related_name='follower'
+    )
+    author = models.ForeignKey(
+        CustomUser,
+        verbose_name='Автор',
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='following'
+    )
+
