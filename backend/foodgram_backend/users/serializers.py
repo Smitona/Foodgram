@@ -9,6 +9,10 @@ class TokenSerializer(serializers.ModelSerializer):
         )
 
 
+class UserCreateSerializer(serializers.ModelSeeializer):
+    pass
+
+
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
@@ -21,6 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
         )
-    
+
     def get_is_subscribed(self):
         pass

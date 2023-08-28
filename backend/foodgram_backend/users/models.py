@@ -34,6 +34,7 @@ class CustomUser(AbstractUser):
             RegexValidator(r'^[\w.@+-]+\z'),
         ],
     )
+
     class Meta:
         ordering = ('username',)
 
