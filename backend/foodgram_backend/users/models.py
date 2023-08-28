@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
+
 class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,
@@ -33,20 +34,19 @@ class CustomUser(AbstractUser):
             RegexValidator(r'^[\w.@+-]+\z'),
         ],
     )
-
     class Meta:
         ordering = ('username',)
-    
+
     def __str__(self) -> str:
         return self.username
 
 
-class Follow(models.Model):
-    user = models.ForeignKey(
+class UserFollower(models.Model):
+    follower = models.ForeignKey(
         CustomUser,
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
-        related_name='follower'
+        related_name='followers'
     )
     author = models.ForeignKey(
         CustomUser,
@@ -56,3 +56,13 @@ class Follow(models.Model):
         related_name='following'
     )
 
+    class Meta:
+        constrains = [
+            models.UniqueConstraint(
+                fields=['follower', 'author'],
+                name='уникальная подписка',
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.follower} подписан на {self.author}'

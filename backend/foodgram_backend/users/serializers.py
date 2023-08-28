@@ -1,6 +1,7 @@
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 
+
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
@@ -9,13 +10,10 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.BooleanField(
-        read_only=True,
-
-    )
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        fields =(
+        fields = (
             'email',
             'id',
             'username',
@@ -23,3 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
         )
+    
+    def get_is_subscribed(self):
+        pass

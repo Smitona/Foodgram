@@ -13,6 +13,7 @@ class Ingredients(models.Model):
     T_SP = 'TABLE-SPOONS'
     SP = 'SPOONS'
     GL = 'GLASS'
+    EYE = 'BY EYE'
     UNITS = [
         (KILO, 'кг'),
         (GRAMMS, 'г'),
@@ -22,13 +23,14 @@ class Ingredients(models.Model):
         (T_SP, 'ложка'),
         (SP, 'чайная ложка'),
         (GL, 'стакан')
+        (EYE, 'на глаз')
     ]
 
     name = models.CharField(
         max_length=200,
         required=True,
     )
-    measurement_unit = models.ChoiceField(
+    measurement_unit = models.CharField(
         required=True,
         choices=UNITS,
     )
@@ -44,10 +46,12 @@ class Tag(models.Model):
     )
     color = models.CharField(
         max_length=7,
+        verbose_name='Цвет в HEX',
         default='#ffffff',
     )
     slug = models.SlugField(
         max_length=200,
+        verbose_name='Уникальный слаг',
         validators=[
             RegexValidator(r'^[-a-zA-Z0-9_]+$'),
         ],
@@ -73,6 +77,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         required=True,
+        verbose_name='Ссылка на картинку на сайте',
     )
     text = models.TextField(
         verbose_name='Описание',
