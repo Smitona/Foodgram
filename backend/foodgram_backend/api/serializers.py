@@ -24,8 +24,11 @@ class RecipeSeralizer(serializers.ModelSeializer):
             recipe = get_object_or_404(Recipe, pk=recipe_id)
             author = self.context['request'].user
 
-        if Recipe.objects.filter(name=title, author=author).exists():
+        if Recipe.objects.filter(name=recipe, author=author).exists():
             raise serializers.ValidationError(
-                'Вы уже создали отзыв к этому прозведению!',
+                'Вы уже создали рецепт с таким названием!',
             )
         return data
+    
+    def get_is_favorited(self):
+        pass

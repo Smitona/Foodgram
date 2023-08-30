@@ -1,29 +1,73 @@
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import (
+    RegexValidator, MaxValueValidator, MinValueValidator
+)
 
 from users.models import CustomUser
 
 
-class Ingredients(models.Model):
+class Ingredient(models.Model):
     KILO = 'KILOGRAMMS'
     GRAMMS = 'GRAMMS'
     POINTS = 'POINTS'
-    LITRS = 'LITRS'
     ML = 'MILILITRS'
+    LT = 'LITRS'
     T_SP = 'TABLE-SPOONS'
     SP = 'SPOONS'
     GL = 'GLASS'
     EYE = 'BY EYE'
+    DROP = 'DROP'
+    SACHET = 'SACHET'
+    PIECE = 'PIECE'
+    TUFT = 'TUFT'
+    PINCH = 'PINCH'
+    SLICE = 'SLICE'
+    CAN = 'CAN'
+    PACKAGE = 'PACKAGE'
+    CLOVE = 'CLOVE'
+    HANDFUL = 'HANDFUL'
+    PACK = 'PACK'
+    STICK = 'STICK'
+    BOTTLE = 'BOTTLE'
+    LOAF = 'LOAF'
+    LEAF = 'LEAF'
+    SCAPE = 'SCAPE'
+    LIKING = 'LIKING'
+    STAR = 'STAR'
+    LAYER = 'LAYER'
+    LT_SACHET = 'LITTLE_SACHET'
+    BIRD = 'BIRD'
     UNITS = [
         (KILO, 'кг'),
         (GRAMMS, 'г'),
-        (POINTS, 'шт'),
-        (LITRS, 'л'),
+        (POINTS, 'шт.'),
         (ML, 'мл'),
-        (T_SP, 'ложка'),
-        (SP, 'чайная ложка'),
-        (GL, 'стакан')
-        (EYE, 'на глаз')
+        (LT, 'л'),
+        (T_SP, 'ст. л.'),
+        (SP, 'ч. л.'),
+        (GL, 'стакан'),
+        (EYE, 'на глаз'),
+        (DROP, 'капля'),
+        (SACHET, 'пакет'),
+        (PIECE, 'кусок'),
+        (TUFT, 'пучок'),
+        (PINCH, 'щепотка'),
+        (SLICE, 'долька'),
+        (CAN, 'банка'),
+        (PACKAGE, 'упаковка'),
+        (CLOVE, 'зубчик'),
+        (HANDFUL, 'горсть'),
+        (PACK, 'пачка'),
+        (STICK, 'веточка'),
+        (BOTTLE, 'бутылка'),
+        (LOAF, 'батон'),
+        (LEAF, 'лист'),
+        (SCAPE, 'стебель'),
+        (LIKING, 'по вкусу'),
+        (STAR, 'звездочка'),
+        (LAYER, 'пласт'),
+        (BIRD, 'тушка'),
+        (LT_SACHET, 'пакетик'),
     ]
 
     name = models.CharField(
@@ -62,14 +106,22 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    tags = models.IntegerChoices(requiered=True,)
+    tags = models.ManyToManyField(
+        Tag,
+        requiered=True,
+        through='RecipeTags',
+    )
     author = models.ForeignKey(
         CustomUser,
         verbose_name='Автор',
         on_delete=models.CASCADE,
         related_name='recipies',
     )
-    ingredients = models.OneToManyField(Ingredients, required=True,)
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        required=True,
+        through='RecipeIngredients',
+    )
     name = models.CharField(
         max_length=200,
         verbose_name='Название рецепта',
@@ -83,7 +135,22 @@ class Recipe(models.Model):
         verbose_name='Описание',
         required=True,
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
         required=True,
+        default=15,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(100)
+        ]
     )
+
+
+class RecipeTags(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+
+class RecipeIngredients(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
