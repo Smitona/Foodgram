@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
 
-from recipes.models import Recipe, 
+from recipes.models import Recipe, Ingredient, Tag
 
 
 class RecipeSeralizer(serializers.ModelSeializer):
@@ -13,11 +13,11 @@ class RecipeSeralizer(serializers.ModelSeializer):
     )
     # is_favorited = serializers.
     is_in_shopping_cart = serializers.SerializerMethodField
-    
+
     class Meta:
         Model = Recipe
         fields = '__all__'
-    
+
     def validate(self, data):
         if self.context['request'].method == 'POST':
             recipe_id = self.context.get('view').kwargs.get('recipe_id')
@@ -29,6 +29,38 @@ class RecipeSeralizer(serializers.ModelSeializer):
                 'Вы уже создали рецепт с таким названием!',
             )
         return data
-    
-    def get_is_favorited(self):
-        pass
+
+"""     def get_is_favorited(self):
+        pass """
+
+
+class IngridientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
+
+
+class IngridientListSerializer(IngridientSerializer):
+    class Meta:
+        model = Ingredient
+        fields = IngridientSerializer.Meta.fields
+
+
+class ShoppingCart(serializers.ModelSerializer):
+    pass
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fileds = (
+            'id',
+            'name',
+            'color',
+            'slug',
+        )
+

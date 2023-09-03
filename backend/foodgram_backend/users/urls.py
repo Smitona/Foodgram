@@ -11,6 +11,7 @@ router.register(
     r'users/(?P<user_id>\d+)/subscribe'
 )
 
+app_name = 'users'
 
 urlpatterns = [
     path('', include(routers.urls)),

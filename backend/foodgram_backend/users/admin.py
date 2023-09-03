@@ -1,10 +1,17 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
-from users.models import CustomUser
+from users.models import CustomUser, UserFollower
 
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = ["email", "username",]
 
-admin.site.register(CustomUser, CustomUserAdmin)
+class BaseAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
+
+
+@admin.register(CustomUser)
+class CustomUserAdmin(BaseAdmin):
+    pass
+
+
+@admin.register(UserFollower)
+class UserFollowerAdmin(BaseAdmin):
+    pass
