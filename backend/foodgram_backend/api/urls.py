@@ -5,10 +5,20 @@ from api.views import (
     RecipeViewSet, IngridientViewSet, ShoppingCartViewSet, FavoriteViewSet
 )
 
+app_name = 'api'
+
 router = routers.DefaultRouter()
 
-router.register('recipes', RecipeViewSet)
-router.register('recipes/download_shopping_cart',)
+router.register(
+    'recipes',
+    RecipeViewSet,
+    basename='recipe',
+)
+router.register(
+    'recipes/download_shopping_cart',
+    ShoppingCartViewSet,
+    basename='download_cart'
+)
 router.register(
     r'recipes/(?P<recipe_id>\d+)/shopping_cart',
     ShoppingCartViewSet,
@@ -17,7 +27,7 @@ router.register(
 router.register(
     r'recipes/(?P<recipe_id>\d+)/favorite/',
     FavoriteViewSet,
-    basemane='favorite',
+    basename='favorite',
 )
 router.register(
     'ingridients',

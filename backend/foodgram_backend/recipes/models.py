@@ -72,11 +72,12 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         max_length=200,
-        required=True,
+        blank=False,
     )
     measurement_unit = models.CharField(
-        required=True,
+        blank=False,
         choices=UNITS,
+        max_length=25,
     )
 
     def __str__(self) -> str:
@@ -101,14 +102,14 @@ class Tag(models.Model):
         ],
     )
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
 
 class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
-        requiered=True,
+        blank=False,
         through='RecipeTags',
     )
     author = models.ForeignKey(
@@ -119,31 +120,34 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        required=True,
+        blank=False,
         through='RecipeIngredients',
     )
     name = models.CharField(
         max_length=200,
         verbose_name='Название рецепта',
-        required=True,
+        blank=False,
     )
     image = models.ImageField(
-        required=True,
+        blank=False,
         verbose_name='Ссылка на картинку на сайте',
     )
     text = models.TextField(
         verbose_name='Описание',
-        required=True,
+        blank=False,
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
-        required=True,
+        blank=False,
         default=15,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(100)
         ]
     )
+
+    def __str__(self):
+        return self.name[:30]
 
 
 class RecipeTags(models.Model):

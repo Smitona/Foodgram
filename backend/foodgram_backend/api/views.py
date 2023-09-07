@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from api.serializers import (
     RecipeSeralizer, IngridientSerializer,
-    IngredientListSerializer, TagSerializer
+    IngridientListSerializer, TagSerializer
 )
 from recipes.models import Ingredient, Tag
 
@@ -26,7 +26,7 @@ class IngridientViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):
             return IngridientSerializer
-        return IngredientListSerializer
+        return IngridientListSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -53,4 +53,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class ShoppingCartViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class FavoriteViewSet(viewsets.ModelViewSet):
     pass

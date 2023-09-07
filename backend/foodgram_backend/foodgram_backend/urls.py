@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 
 import users.urls
 
+app_name = 'foodgram_backend'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(

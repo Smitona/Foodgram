@@ -7,31 +7,31 @@ class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        required=True,
+        blank=False,
         validators=[
-            RegexValidator(r'^[\w.@+-]+\z'),
+            RegexValidator(r'^[\w.@+-]+\Z'),
         ],
     )
     email = models.EmailField(
         max_length=254,
         unique=True,
-        required=True,
+        blank=False,
     )
     first_name = models.CharField(
         max_length=150,
         unique=True,
-        required=True,
+        blank=False,
     )
     last_name = models.CharField(
         max_length=150,
         unique=True,
-        required=True,
+        blank=False,
     )
     password = models.CharField(
         max_length=150,
-        required=True,
+        blank=False,
         validators=[
-            RegexValidator(r'^[\w.@+-]+\z'),
+            RegexValidator(r'^[\w.@+-]+\Z'),
         ],
     )
 
@@ -58,10 +58,10 @@ class UserFollower(models.Model):
     )
 
     class Meta:
-        constrains = [
+        constraints = [
             models.UniqueConstraint(
                 fields=['follower', 'author'],
-                name='уникальная подписка',
+                name='unique_follow',
             )
         ]
 
