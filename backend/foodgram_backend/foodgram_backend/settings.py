@@ -93,7 +93,7 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     #'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SERIALIZERS': {
-        'user_create': 'accounts.serializers.UserCreateSerializer',
+        'user_create': 'djoser.serializers.UserCreateSerializer',
         'user': 'djoser.serializers.UserSerializer',
         'current_user': 'djoser.serializers.UserSerializer',
         'user_delete': 'djoser.serializers.UserSerializer',

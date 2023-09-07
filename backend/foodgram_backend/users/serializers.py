@@ -18,26 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
           #  'is_subscribed',
         )
-"""
-    def get_is_subscribed(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
-            return False
-        return obj.folliwing.filter(user=user).exists()
-
-    def recipes_count(self, obj):
-        return obj.author.count()
-"""
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    '''password = serializers.CharField(
-        max_length=150,
-        required=True,
-        validators=[
-            RegexValidator(r'^[\w.@+-]+\Z'),
-        ],
-    )'''
 
     class Meta:
         fields = (
@@ -46,17 +29,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'password'
         )
-""""
-    def create(self, validated_data):
-        user = CustomUser(
-            email=validated_data['email'],
-            username=validated_data['username']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-        """
 
 
 class UserMeSerializer(UserSerializer):
