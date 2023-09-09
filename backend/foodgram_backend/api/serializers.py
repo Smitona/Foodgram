@@ -1,16 +1,27 @@
+import base64
+
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from recipes.models import Recipe, Ingredient, Tag, RecipeIngredients
 
 
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+
 class IngridientSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Ingredient
         fields = (
             'id',
-            'name',
-            'measurement_unit',
+            'amount',
         )
 
 
@@ -35,19 +46,23 @@ class TagSerializer(serializers.ModelSerializer):
         )
 
 
-class RecipeSeralizer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username',
-        default=serializers.CurrentUserDefault(),
-    )
-    ingredient = IngridientSerializer(read_only=True, many=True)
-    # is_favorited = serializers.
-    is_in_shopping_cart = serializers.SerializerMethodField
+class RecipeCreateSeralizer(serializers.ModelSerializer):
+    ingredients = IngridientSerializer(read_only=True, many=True)
+    image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         Model = Recipe
-        fields = '__all__'
+        fields = (
+            'id',
+            #'tags',
+            'author'
+            'ingridients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
 
     def validate(self, data):
         if self.context['request'].method == 'POST':
@@ -75,5 +90,35 @@ class RecipeSeralizer(serializers.ModelSerializer):
         return recipe
 
 
-"""     def get_is_favorited(self):
+class RecipeSeralizer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault(),
+    )
+    image = RecipeCreateSeralizer(required=True, allow_null=False)
+    ingredients = RecipeCreateSeralizer(read_only=True, many=True)
+    tags = TagSerializer(read_only=True, many=True)
+    # is_favorited = serializers.
+    is_in_shopping_cart = serializers.SerializerMethodField
+
+    class Meta:
+        Model = Recipe
+        fields = (
+            'id',
+            # 'tags',
+            'author'
+            'ingridients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+    """     def get_is_favorited(self):
         pass """
+    """ def get_is_in_shopping_cart(self):"""
+
+
+

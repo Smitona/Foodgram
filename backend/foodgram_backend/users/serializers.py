@@ -5,8 +5,16 @@ from users.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # is_subscribed = serializers.SerializerMethodField(read_only=True)
-    # recipes_count = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('author')
+        if user.is_anonymous:
+            return False
+        return obj.followers.filter(
+            user=self.context.get('follower'),
+            following=obj.author
+        )
 
     class Meta:
         model = CustomUser
@@ -16,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-          #  'is_subscribed',
+            'is_subscribed',
         )
 
 
@@ -37,12 +45,29 @@ class UserMeSerializer(UserSerializer):
     class Meta:
         model = CustomUser
         fields = UserSerializer.Meta.fields
-        #read_only_fields = (
-            #'is_subscribed',
-       # )
+        read_only_fields = (
+            'is_subscribed',
+        )
 
 
-class SubsctibeSerilizer(serializers.ModelSerializer):
+class SubscribeSerilizer(serializers.ModelSerializer):
+    recipes = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
+    is_subsribed = UserSerializer(read_only=True)
+
+    def get_recipes(self, obj):
+        return obj.recipies.filter(author=obj.author)
+
+    def get_recipes_count(self, obj):
+        return self.get_recipes.count()
+
+    def validate(self, data):
+        if self.context['request'].user == data['following']:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя!'
+            )
+        return data
+
     class Meta:
         model = CustomUser
         filels = fields = (
@@ -51,8 +76,7 @@ class SubsctibeSerilizer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-           # 'is_subscribed',
-            'recipies',
-            # 'recipes_count',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
         )
-

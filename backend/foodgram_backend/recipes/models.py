@@ -111,6 +111,7 @@ class Recipe(models.Model):
         Tag,
         blank=False,
         through='RecipeTags',
+        related_name='recipies',
     )
     author = models.ForeignKey(
         CustomUser,
@@ -129,7 +130,9 @@ class Recipe(models.Model):
         blank=False,
     )
     image = models.ImageField(
+        upload_to='recopes/images/'
         blank=False,
+        null=False,
         verbose_name='Ссылка на картинку на сайте',
     )
     text = models.TextField(
@@ -158,3 +161,10 @@ class RecipeTags(models.Model):
 class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    measurement_unit = models.CharField(
+        blank=False,
+        max_length=25,
+    )
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество игридиента',
+    )

@@ -12,7 +12,7 @@ from api.serializers import (
 from recipes.models import Ingredient, Tag
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
