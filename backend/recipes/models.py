@@ -6,70 +6,72 @@ from django.core.validators import (
 from users.models import CustomUser
 
 
-class Ingredient(models.Model):
-    KILO = 'KILOGRAMMS'
-    GRAMMS = 'GRAMMS'
-    POINTS = 'POINTS'
-    ML = 'MILILITRS'
-    LT = 'LITRS'
-    T_SP = 'TABLE-SPOONS'
-    SP = 'SPOONS'
-    GL = 'GLASS'
-    EYE = 'BY EYE'
-    DROP = 'DROP'
-    SACHET = 'SACHET'
-    PIECE = 'PIECE'
-    TUFT = 'TUFT'
-    PINCH = 'PINCH'
-    SLICE = 'SLICE'
-    CAN = 'CAN'
-    PACKAGE = 'PACKAGE'
-    CLOVE = 'CLOVE'
-    HANDFUL = 'HANDFUL'
-    PACK = 'PACK'
-    STICK = 'STICK'
-    BOTTLE = 'BOTTLE'
-    LOAF = 'LOAF'
-    LEAF = 'LEAF'
-    SCAPE = 'SCAPE'
-    LIKING = 'LIKING'
-    STAR = 'STAR'
-    LAYER = 'LAYER'
-    LT_SACHET = 'LITTLE_SACHET'
-    BIRD = 'BIRD'
-    UNITS = [
-        (KILO, 'кг'),
-        (GRAMMS, 'г'),
-        (POINTS, 'шт.'),
-        (ML, 'мл'),
-        (LT, 'л'),
-        (T_SP, 'ст. л.'),
-        (SP, 'ч. л.'),
-        (GL, 'стакан'),
-        (EYE, 'на глаз'),
-        (DROP, 'капля'),
-        (SACHET, 'пакет'),
-        (PIECE, 'кусок'),
-        (TUFT, 'пучок'),
-        (PINCH, 'щепотка'),
-        (SLICE, 'долька'),
-        (CAN, 'банка'),
-        (PACKAGE, 'упаковка'),
-        (CLOVE, 'зубчик'),
-        (HANDFUL, 'горсть'),
-        (PACK, 'пачка'),
-        (STICK, 'веточка'),
-        (BOTTLE, 'бутылка'),
-        (LOAF, 'батон'),
-        (LEAF, 'лист'),
-        (SCAPE, 'стебель'),
-        (LIKING, 'по вкусу'),
-        (STAR, 'звездочка'),
-        (LAYER, 'пласт'),
-        (BIRD, 'тушка'),
-        (LT_SACHET, 'пакетик'),
-    ]
+KILO = 'KILOGRAMMS'
+GRAMMS = 'GRAMMS'
+POINTS = 'POINTS'
+ML = 'MILILITRS'
+LT = 'LITRS'
+T_SP = 'TABLE-SPOONS'
+SP = 'SPOONS'
+GL = 'GLASS'
+EYE = 'BY EYE'
+DROP = 'DROP'
+SACHET = 'SACHET'
+PIECE = 'PIECE'
+TUFT = 'TUFT'
+PINCH = 'PINCH'
+SLICE = 'SLICE'
+CAN = 'CAN'
+PACKAGE = 'PACKAGE'
+CLOVE = 'CLOVE'
+HANDFUL = 'HANDFUL'
+PACK = 'PACK'
+STICK = 'STICK'
+BOTTLE = 'BOTTLE'
+LOAF = 'LOAF'
+LEAF = 'LEAF'
+SCAPE = 'SCAPE'
+LIKING = 'LIKING'
+STAR = 'STAR'
+LAYER = 'LAYER'
+LT_SACHET = 'LITTLE_SACHET'
+BIRD = 'BIRD'
 
+UNITS = [
+    (KILO, 'кг'),
+    (GRAMMS, 'г'),
+    (POINTS, 'шт.'),
+    (ML, 'мл'),
+    (LT, 'л'),
+    (T_SP, 'ст. л.'),
+    (SP, 'ч. л.'),
+    (GL, 'стакан'),
+    (EYE, 'на глаз'),
+    (DROP, 'капля'),
+    (SACHET, 'пакет'),
+    (PIECE, 'кусок'),
+    (TUFT, 'пучок'),
+    (PINCH, 'щепотка'),
+    (SLICE, 'долька'),
+    (CAN, 'банка'),
+    (PACKAGE, 'упаковка'),
+    (CLOVE, 'зубчик'),
+    (HANDFUL, 'горсть'),
+    (PACK, 'пачка'),
+    (STICK, 'веточка'),
+    (BOTTLE, 'бутылка'),
+    (LOAF, 'батон'),
+    (LEAF, 'лист'),
+    (SCAPE, 'стебель'),
+    (LIKING, 'по вкусу'),
+    (STAR, 'звездочка'),
+    (LAYER, 'пласт'),
+    (BIRD, 'тушка'),
+    (LT_SACHET, 'пакетик'),
+]
+
+
+class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         blank=False,
@@ -130,7 +132,7 @@ class Recipe(models.Model):
         blank=False,
     )
     image = models.ImageField(
-        upload_to='recopes/images/'
+        upload_to='recipes/images/',
         blank=False,
         null=False,
         verbose_name='Ссылка на картинку на сайте',

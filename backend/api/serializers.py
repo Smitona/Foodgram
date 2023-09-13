@@ -4,7 +4,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import Recipe, Ingredient, Tag, RecipeIngredients
+from recipes.models import Recipe, Ingredient, Tag, RecipeIngredients, UNITS
 
 
 class Base64ImageField(serializers.ImageField):
@@ -16,6 +16,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class IngridientSerializer(serializers.ModelSerializer):
+    measurement_unit = serializers.ChoiceField(choices='UNITS')
 
     class Meta:
         model = Ingredient
@@ -48,13 +49,14 @@ class TagSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSeralizer(serializers.ModelSerializer):
     ingredients = IngridientSerializer(read_only=True, many=True)
+    tags = serializers.ChoiceField(many=True, choices='recipies')
     image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
         Model = Recipe
         fields = (
             'id',
-            #'tags',
+            'tags',
             'author'
             'ingridients',
             'tags',
@@ -98,7 +100,7 @@ class RecipeSeralizer(serializers.ModelSerializer):
     )
     image = RecipeCreateSeralizer(required=True, allow_null=False)
     ingredients = RecipeCreateSeralizer(read_only=True, many=True)
-    tags = TagSerializer(read_only=True, many=True)
+    tags = serializers.ChoiceField(many=True, choices='recipies')
     # is_favorited = serializers.
     is_in_shopping_cart = serializers.SerializerMethodField
 
@@ -106,7 +108,7 @@ class RecipeSeralizer(serializers.ModelSerializer):
         Model = Recipe
         fields = (
             'id',
-            # 'tags',
+            'tags',
             'author'
             'ingridients',
             'tags',
