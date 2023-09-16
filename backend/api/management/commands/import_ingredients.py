@@ -21,22 +21,22 @@ class Command(BaseCommand):
         )
 
         self.import_csv_data(
-            csv_path, 'ingridients.csv',
-            self.import_ingridients
+            csv_path, 'ingredients.csv',
+            self.import_ingredients
         )
         self.stdout.write(
             self.style.SUCCESS(
-                'Ingridients imported successfully.'
+                'Ingredients imported successfully.'
             )
         )
 
     def import_csv_data(self, csv_path, filename, import_func):
         file_path = Path(csv_path) / filename
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             csv_data = csv.DictReader(file)
             import_func(csv_data)
 
-    def import_ingridients(self, csv_data):
+    def import_ingredients(self, csv_data):
         ingredients = [
             Ingredient(
                         name=row['name'],

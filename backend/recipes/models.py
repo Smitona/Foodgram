@@ -168,5 +168,5 @@ class RecipeIngredients(models.Model):
         max_length=25,
     )
     amount = models.PositiveIntegerField(
-        verbose_name='Количество игридиента',
+        verbose_name='Количество ингредиента',
     )

@@ -6,8 +6,8 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from api.serializers import (
-    RecipeSeralizer, IngridientSerializer,
-    IngridientListSerializer, TagSerializer
+    RecipeSeralizer, IngredientSerializer,
+    IngredientListSerializer, TagSerializer
 )
 from recipes.models import Ingredient, Tag
 
@@ -17,7 +17,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
 
 
-class IngridientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
 
     # filter_backends =
@@ -25,8 +25,8 @@ class IngridientViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):
-            return IngridientSerializer
-        return IngridientListSerializer
+            return IngredientSerializer
+        return IngredientListSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -36,19 +36,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # filter_backends =
     # search_fields =
 
-    def get_ingridients(self, *args, **kwargs):
-        ingridient_id = self.kwargs.get('ingridient_id')
-        ingridient = get_object_or_404(Ingredient, id=ingridient_id)
-        return ingridient
+    def get_ingredients(self, *args, **kwargs):
+        ingredient_id = self.kwargs.get('ingredient_id')
+        ingredient = get_object_or_404(Ingredient, id=ingredient_id)
+        return ingredient
 
     def get_queryset(self, *artgs, **kwargs):
-        ingridients = self.get_ingridients()
-        return ingridients.recipies.select_related('author')
+        ingredients = self.get_ingredients()
+        return ingredients.recipies.select_related('author')
 
     def perform_create(self, serizlier):
         serizlier.save(
             author=self.request.user,
-            ingridients=self.get_ingridients()
+            ingredients=self.get_ingredients()
         )
 
 

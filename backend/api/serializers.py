@@ -15,21 +15,27 @@ class Base64ImageField(serializers.ImageField):
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
 
-class IngridientSerializer(serializers.ModelSerializer):
-    measurement_unit = serializers.ChoiceField(choices='UNITS')
+class IngredientSerializer(serializers.ModelSerializer):
+    measurement_unit = serializers.ChoiceField(choices=UNITS)
 
+    class Meta:
+        model = RecipeIngredients
+        fields = (
+            'id',
+            'ingredient',
+            'amount',
+            'measurement_unit',
+        )
+
+
+class IngredientListSerializer(IngredientSerializer):
     class Meta:
         model = Ingredient
         fields = (
             'id',
-            'amount',
+            'name',
+            'measurement_unit',
         )
-
-
-class IngridientListSerializer(IngridientSerializer):
-    class Meta:
-        model = Ingredient
-        fields = IngridientSerializer.Meta.fields
 
 
 class ShoppingCart(serializers.ModelSerializer):
@@ -39,7 +45,7 @@ class ShoppingCart(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fileds = (
+        fields = (
             'id',
             'name',
             'color',
@@ -48,17 +54,19 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSeralizer(serializers.ModelSerializer):
-    ingredients = IngridientSerializer(read_only=True, many=True)
-    tags = serializers.ChoiceField(many=True, choices='recipies')
+    ingredients = IngredientSerializer(read_only=True, many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     image = Base64ImageField(required=True, allow_null=False)
 
     class Meta:
-        Model = Recipe
+        model = Recipe
         fields = (
             'id',
             'tags',
-            'author'
-            'ingridients',
+            'author',
+            'ingredients',
             'tags',
             'image',
             'name',
@@ -79,15 +87,30 @@ class RecipeCreateSeralizer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        ingridients = validated_data.pop('ingridients')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
 
-        for ingridient in ingridients:
+        for ingredient in ingredients:
             current_ingridient, status = Ingredient.objects.get_or_create(
-                **ingridient
+                **ingredient
             )
             RecipeIngredients.objects.create(
-                ingridient=current_ingridient, recipe=recipe
+                ingredient=current_ingridient, recipe=recipe,
+            )
+        return recipe
+
+    def update(self, validated_data):
+        self.ingredients.all().delete()
+
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+
+        for ingredient in ingredients:
+            current_ingridient, status = Ingredient.objects.get_or_create(
+                **ingredient
+            )
+            RecipeIngredients.objects.create(
+                ingredient=current_ingridient, recipe=recipe
             )
         return recipe
 
@@ -100,17 +123,19 @@ class RecipeSeralizer(serializers.ModelSerializer):
     )
     image = RecipeCreateSeralizer(required=True, allow_null=False)
     ingredients = RecipeCreateSeralizer(read_only=True, many=True)
-    tags = serializers.ChoiceField(many=True, choices='recipies')
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     # is_favorited = serializers.
-    is_in_shopping_cart = serializers.SerializerMethodField
+    # is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
-        Model = Recipe
+        model = Recipe
         fields = (
             'id',
             'tags',
-            'author'
-            'ingridients',
+            'author',
+            'ingredients',
             'tags',
             'image',
             'name',

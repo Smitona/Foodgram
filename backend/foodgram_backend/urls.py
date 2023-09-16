@@ -2,8 +2,6 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
-import users.urls
-
 app_name = 'foodgram_backend'
 
 urlpatterns = [

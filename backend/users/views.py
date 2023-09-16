@@ -22,4 +22,3 @@ class SubscribtionsViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(follower=self.request.user)
 
-
