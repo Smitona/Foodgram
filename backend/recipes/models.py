@@ -6,71 +6,6 @@ from django.core.validators import (
 from users.models import CustomUser
 
 
-KILO = 'KILOGRAMMS'
-GRAMMS = 'GRAMMS'
-POINTS = 'POINTS'
-ML = 'MILILITRS'
-LT = 'LITRS'
-T_SP = 'TABLE-SPOONS'
-SP = 'SPOONS'
-GL = 'GLASS'
-EYE = 'BY EYE'
-DROP = 'DROP'
-SACHET = 'SACHET'
-PIECE = 'PIECE'
-TUFT = 'TUFT'
-PINCH = 'PINCH'
-SLICE = 'SLICE'
-CAN = 'CAN'
-PACKAGE = 'PACKAGE'
-CLOVE = 'CLOVE'
-HANDFUL = 'HANDFUL'
-PACK = 'PACK'
-STICK = 'STICK'
-BOTTLE = 'BOTTLE'
-LOAF = 'LOAF'
-LEAF = 'LEAF'
-SCAPE = 'SCAPE'
-LIKING = 'LIKING'
-STAR = 'STAR'
-LAYER = 'LAYER'
-LT_SACHET = 'LITTLE_SACHET'
-BIRD = 'BIRD'
-
-UNITS = [
-    (KILO, 'кг'),
-    (GRAMMS, 'г'),
-    (POINTS, 'шт.'),
-    (ML, 'мл'),
-    (LT, 'л'),
-    (T_SP, 'ст. л.'),
-    (SP, 'ч. л.'),
-    (GL, 'стакан'),
-    (EYE, 'на глаз'),
-    (DROP, 'капля'),
-    (SACHET, 'пакет'),
-    (PIECE, 'кусок'),
-    (TUFT, 'пучок'),
-    (PINCH, 'щепотка'),
-    (SLICE, 'долька'),
-    (CAN, 'банка'),
-    (PACKAGE, 'упаковка'),
-    (CLOVE, 'зубчик'),
-    (HANDFUL, 'горсть'),
-    (PACK, 'пачка'),
-    (STICK, 'веточка'),
-    (BOTTLE, 'бутылка'),
-    (LOAF, 'батон'),
-    (LEAF, 'лист'),
-    (SCAPE, 'стебель'),
-    (LIKING, 'по вкусу'),
-    (STAR, 'звездочка'),
-    (LAYER, 'пласт'),
-    (BIRD, 'тушка'),
-    (LT_SACHET, 'пакетик'),
-]
-
-
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
@@ -78,7 +13,6 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         blank=False,
-        choices=UNITS,
         max_length=25,
     )
 
@@ -112,19 +46,20 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         blank=False,
-        through='RecipeTags',
-        related_name='recipies',
+        through='RecipeTag',
+        related_name='recipes',
     )
     author = models.ForeignKey(
         CustomUser,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        related_name='recipies',
+        related_name='recipes',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         blank=False,
-        through='RecipeIngredients',
+        through='RecipeIngredient',
+        #through_fields=('recipe', 'ingredient'),
     )
     name = models.CharField(
         max_length=200,
@@ -155,18 +90,35 @@ class Recipe(models.Model):
         return self.name[:30]
 
 
-class RecipeTags(models.Model):
+class RecipeTag(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
 
-class RecipeIngredients(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    measurement_unit = models.CharField(
-        blank=False,
-        max_length=25,
+class RecipeIngredient(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name='recipe_ingredient'
     )
     amount = models.PositiveIntegerField(
         verbose_name='Количество ингредиента',
     )
+
+"""
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+
+
+class ShoppingCart(Favorite):
+    pass
+"""

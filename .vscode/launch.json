@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Django: runserver",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\backend\\manage.py",
+            "args": [
+                "runserver",
+                "127.0.0.1:9090"
+            ],
+            "env": {
+                "DJANGO_DEBUG": "True",
+                "DJANGO_USE_SQLITE": "True"
+            },
+            "django": true,
+            "justMyCode": false
+        },
+    ]
+}

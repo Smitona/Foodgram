@@ -33,7 +33,6 @@ services:
     command: cp -r /app/build/. /static/
     volumes:
       - ../frontend/:/app/result_build/
-      # - static:/frontend_static
 
   gateway:
     build:

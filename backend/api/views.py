@@ -1,15 +1,16 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 from api.serializers import (
-    RecipeSeralizer, IngredientSerializer,
+    RecipeSerializer, RecipeCreateSerializer,
     IngredientListSerializer, TagSerializer
 )
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag, Recipe
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -17,44 +18,47 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
+    serializer_class = IngredientListSerializer
 
     # filter_backends =
     # search_fields =
 
-    def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
-            return IngredientSerializer
-        return IngredientListSerializer
-
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    serializer_class = RecipeSeralizer
     permission_classes = (AllowAny,)
 
     # filter_backends =
     # search_fields =
 
-    def get_ingredients(self, *args, **kwargs):
-        ingredient_id = self.kwargs.get('ingredient_id')
-        ingredient = get_object_or_404(Ingredient, id=ingredient_id)
-        return ingredient
-
     def get_queryset(self, *artgs, **kwargs):
-        ingredients = self.get_ingredients()
-        return ingredients.recipies.select_related('author')
+        queryset = Recipe.objects.all().select_related(
+            'author').prefetch_related(
+                'ingredients',
+            )
+        return queryset
 
-    def perform_create(self, serizlier):
-        serizlier.save(
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return RecipeSerializer
+        return RecipeCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(
             author=self.request.user,
-            ingredients=self.get_ingredients()
         )
 
-
-class ShoppingCartViewSet(viewsets.ModelViewSet):
-    pass
-
-
-class FavoriteViewSet(viewsets.ModelViewSet):
-    pass
+'''
+    @action(
+        detail=True, methods=('post','delete',)
+    )
+    def favorite(self, request, pk):
+        pass
+    
+    @action(
+        detail=True, methods=('post','delete',)
+    )
+    def shopping_cart(self, request, pk):
+        pass
+'''

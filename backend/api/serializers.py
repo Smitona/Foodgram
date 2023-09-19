@@ -1,45 +1,10 @@
-import base64
+from drf_extra_fields.fields import Base64ImageField
 
-from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import Recipe, Ingredient, Tag, RecipeIngredients, UNITS
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-    measurement_unit = serializers.ChoiceField(choices=UNITS)
-
-    class Meta:
-        model = RecipeIngredients
-        fields = (
-            'id',
-            'ingredient',
-            'amount',
-            'measurement_unit',
-        )
-
-
-class IngredientListSerializer(IngredientSerializer):
-    class Meta:
-        model = Ingredient
-        fields = (
-            'id',
-            'name',
-            'measurement_unit',
-        )
-
-
-class ShoppingCart(serializers.ModelSerializer):
-    pass
+from recipes.models import Recipe, Ingredient, Tag, RecipeIngredient
+from users.serializers import UserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -53,8 +18,86 @@ class TagSerializer(serializers.ModelSerializer):
         )
 
 
-class RecipeCreateSeralizer(serializers.ModelSerializer):
-    ingredients = IngredientSerializer(read_only=True, many=True)
+class IngredientListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(
+       source='ingredient.id'
+    )
+    measurement_unit = serializers.ReadOnlyField(
+       source='ingredient.measurement_unit'
+    )
+    name = serializers.ReadOnlyField(
+       source='ingredient.name'
+    )
+
+    class Meta:
+        model = RecipeIngredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
+        )
+
+
+class AddIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        source='ingredient.id'
+    )
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredient
+        fields = (
+            'id',
+            'amount',
+        )
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(required=False)
+    ingredients = IngredientSerializer(
+        read_only=True, many=True,
+        source='recipeingredient_set'
+    )
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
+    # is_favorited = serializers.BooleanField(read_only=True)
+    # is_in_shopping_cart = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+    """     def get_is_favorited(self):
+        pass """
+    """ def get_is_in_shopping_cart(self):"""
+
+
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    ingredients = AddIngredientSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
@@ -73,79 +116,83 @@ class RecipeCreateSeralizer(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
-
+    '''
     def validate(self, data):
         if self.context['request'].method == 'POST':
             recipe_id = self.context.get('view').kwargs.get('recipe_id')
             recipe = get_object_or_404(Recipe, pk=recipe_id)
             author = self.context['request'].user
 
-        if Recipe.objects.filter(name=recipe, author=author).exists():
+        if Recipe.objects.filter(id=recipe_id, author=author).exists():
             raise serializers.ValidationError(
                 'Вы уже создали рецепт с таким названием!',
             )
         return data
+    '''
+    @staticmethod
+    def create_ingredients(ingredients, recipe):
+        RecipeIngredient.objects.bulk_create([
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient=ingredient['ingredient']['id'],
+                amount=ingredient['amount'])
+            for ingredient in ingredients
+        ])
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        # author = self.context['request'].user
         recipe = Recipe.objects.create(**validated_data)
+        recipe.save()
 
-        for ingredient in ingredients:
-            current_ingridient, status = Ingredient.objects.get_or_create(
-                **ingredient
-            )
-            RecipeIngredients.objects.create(
-                ingredient=current_ingridient, recipe=recipe,
-            )
+        self.create_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
+
         return recipe
 
-    def update(self, validated_data):
-        self.ingredients.all().delete()
+    def update(self, instance, validated_data):
+        instance.ingredients.clear()
+        self.create_ingredients(
+            validated_data.pop('ingredients')
+        )
+        return super().update(instance, validated_data)
 
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+    def to_representation(self, instance):
+        return RecipeSerializer(
+            instance, context={
+                'request': self.context.get('request')
+            }
+        ).data
 
-        for ingredient in ingredients:
-            current_ingridient, status = Ingredient.objects.get_or_create(
-                **ingredient
-            )
-            RecipeIngredients.objects.create(
-                ingredient=current_ingridient, recipe=recipe
-            )
-        return recipe
-
-
-class RecipeSeralizer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username',
-        default=serializers.CurrentUserDefault(),
-    )
-    image = RecipeCreateSeralizer(required=True, allow_null=False)
-    ingredients = RecipeCreateSeralizer(read_only=True, many=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all()
-    )
-    # is_favorited = serializers.
-    # is_in_shopping_cart = serializers.SerializerMethodField()
+'''
+class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Recipe
+        model = Favorite
         fields = (
             'id',
-            'tags',
-            'author',
-            'ingredients',
-            'tags',
-            'image',
-            'name',
-            'text',
-            'cooking_time'
+            'user',
+            'recipe',
         )
 
-    """     def get_is_favorited(self):
-        pass """
-    """ def get_is_in_shopping_cart(self):"""
 
+    def validate(self, data):
+        if self.context['request'].method == 'POST':
+            recipe_id = self.context.get('view').kwargs.get('recipe_id')
+            recipe = get_object_or_404(Recipe, pk=recipe_id)
+            user = self.context['request'].user
 
-
+        if Recipe.objects.filter(name=recipe, user=user).exists():
+            raise serializers.ValidationError(
+                'Вы уже добавили рецепт в избранное!',
+            )
+        return data
+    
+    def to_representation(self, instance):
+        return Seralizer(
+            instance, context={
+                'request': self.context.get('request')
+            }
+        ).data
+'''
