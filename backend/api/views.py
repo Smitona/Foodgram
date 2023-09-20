@@ -32,12 +32,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # filter_backends =
     # search_fields =
 
-    def get_queryset(self, *artgs, **kwargs):
-        queryset = Recipe.objects.all().select_related(
+    def get_queryset(self, *args, **kwargs):
+        recipes = Recipe.objects.select_related(
             'author').prefetch_related(
                 'ingredients',
             )
-        return queryset
+        return recipes
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -48,17 +48,63 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(
             author=self.request.user,
         )
-
 '''
+    @staticmethod
+    def add_to(self, request, Model, message, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
+
+        Model.objects.create(
+                user=self.request.user,
+                recipe=recipe
+            )
+        return Response(
+                {'detail': message},
+                ShortRecipeSerializer(recipe).data,
+                status=status.HTTP_201_CREATED
+            )
+
+    @staticmethod
+    def delete_from(self, Model, message, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
+        Model.objects.get(
+                user=self.request.user,
+                recipe=recipe
+            ).delete()
+        return Response(
+            {'detail': message},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
     @action(
         detail=True, methods=('post','delete',)
     )
-    def favorite(self, request, pk):
-        pass
-    
+    def favorite(self, request, **kwargs):
+
+        if request.method == 'POST':
+            self.add_to(
+                self, Model=Favorite,
+                message='Рецепт теперь в избранном'
+            )
+
+        if request.method == 'DELETE':
+            self.delete_from(
+                self, Model=Favorite,
+                message='Рецепт удалён из избранного'
+            )
+
     @action(
         detail=True, methods=('post','delete',)
     )
     def shopping_cart(self, request, pk):
-        pass
+        if request.method == 'POST':
+            self.add_to(
+                self, Model=Cart,
+                message='Рецепт теперь в корзине'
+            )
+
+        if request.method == 'DELETE':
+            self.delete_from(
+                self, Model=Cart,
+                message='Рецепт удалён из корзины'
+            )
 '''

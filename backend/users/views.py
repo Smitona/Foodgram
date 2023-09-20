@@ -3,12 +3,12 @@ from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from users.models import UserFollower
-from users.serializers import SubscribeSerilizer
+from users.serializers import SubscribeSerializer
 
 
-class SubscribtionsViewSet(viewsets.ModelViewSet):
+class SubscribeViewSet(viewsets.ModelViewSet):
     queryset = UserFollower.objects.all()
-    serializer_class = SubscribeSerilizer
+    serializer_class = SubscribeSerializer
 
     permission_classes = (permissions.IsAuthenticated,)
 

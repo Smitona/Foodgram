@@ -71,11 +71,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True, many=True,
         source='recipeingredient_set'
     )
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all()
+    tags = TagSerializer(
+         read_only=True, many=True,
     )
+    author = UserSerializer(read_only=True)
+    text = serializers.SerializerMethodField()
     # is_favorited = serializers.BooleanField(read_only=True)
-    # is_in_shopping_cart = serializers.SerializerMethodField()
+    # is_in_shopping_cart = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -87,17 +89,25 @@ class RecipeSerializer(serializers.ModelSerializer):
             'image',
             'name',
             'text',
-            'cooking_time'
+            'cooking_time',
+            # 'is_favorited',
+            # 'is_in_shopping_cart',
         )
 
-    """     def get_is_favorited(self):
+    @staticmethod
+    def get_text(obj):
+        return obj.formatted_text()
+
+    """ def get_is_favorited(self):
         pass """
     """ def get_is_in_shopping_cart(self):"""
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = AddIngredientSerializer(many=True)
+    ingredients = AddIngredientSerializer(
+        many=True,
+    )
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
@@ -142,20 +152,26 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        # author = self.context['request'].user
         recipe = Recipe.objects.create(**validated_data)
         recipe.save()
 
-        self.create_ingredients(ingredients, recipe)
+        self.create_ingredients(
+            ingredients,
+            recipe
+        )
         recipe.tags.set(tags)
 
         return recipe
 
     def update(self, instance, validated_data):
         instance.ingredients.clear()
+        instance.tags.clear()
         self.create_ingredients(
-            validated_data.pop('ingredients')
+            validated_data.pop('ingredients'),
+            self.instance
         )
+        tags = validated_data.pop('tags')
+        instance.tags.set(tags)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

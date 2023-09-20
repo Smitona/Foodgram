@@ -59,7 +59,6 @@ class Recipe(models.Model):
         Ingredient,
         blank=False,
         through='RecipeIngredient',
-        #through_fields=('recipe', 'ingredient'),
     )
     name = models.CharField(
         max_length=200,
@@ -88,6 +87,9 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name[:30]
+    
+    def formatted_text(self):
+        return '<br>'.join(self.text.splitlines())
 
 
 class RecipeTag(models.Model):
@@ -98,9 +100,10 @@ class RecipeTag(models.Model):
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE,
+        related_name='recipe_ingredients'
     )
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, related_name='recipe_ingredient'
+        Recipe, on_delete=models.CASCADE
     )
     amount = models.PositiveIntegerField(
         verbose_name='Количество ингредиента',
@@ -113,12 +116,12 @@ class Favorite(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )
-    recipe = models.ForeignKey(
+    recipe = models.ManyToOne(
         Recipe,
         on_delete=models.CASCADE,
     )
 
 
-class ShoppingCart(Favorite):
+class Cart(Favorite):
     pass
 """
