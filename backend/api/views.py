@@ -8,9 +8,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 from api.serializers import (
     RecipeSerializer, RecipeCreateSerializer,
-    IngredientListSerializer, TagSerializer
+    IngredientListSerializer, TagSerializer,
+    ShortRecipeSerializer
 )
-from recipes.models import Ingredient, Tag, Recipe
+from api.permissions import AuthorOrReadOnly
+from recipes.models import Ingredient, Tag, Recipe, Favorite
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -27,7 +29,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    permission_classes = (AllowAny,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          AuthorOrReadOnly,)
 
     # filter_backends =
     # search_fields =
@@ -48,7 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(
             author=self.request.user,
         )
-'''
+
     @staticmethod
     def add_to(self, request, Model, message, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
@@ -91,7 +94,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 self, Model=Favorite,
                 message='Рецепт удалён из избранного'
             )
-
+'''
     @action(
         detail=True, methods=('post','delete',)
     )

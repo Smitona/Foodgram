@@ -14,34 +14,27 @@ services:
       - fd_pg_data:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: ../backend/
-      dockerfile: Dockerfile
+    image: smitona/fd_backend
     env_file: ../.env
-    depends_on:
-      - db
     volumes:
-      - static:/backend_static
-      - media:/media
+      - static:/app/backend_static/
+      - media:/app/media/
 
   frontend:
-    depends_on:
-      - backend
-    build:
-      context: ../frontend/
-      dockerfile: Dockerfile
+    image: smitona/fd_frontend
     command: cp -r /app/build/. /static/
     volumes:
       - ../frontend/:/app/result_build/
+      - static:/frontend_static
 
   gateway:
-    build:
-      dockerfile: Dockerfile
+    image: smitona/fd_gateway
+    env_file: ../.env
     ports:
       - 9090:80
     volumes:
-      - static:/static
-      - media:/media
+      - static:/var/html/static/
+      - media:/var/html/media/
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/

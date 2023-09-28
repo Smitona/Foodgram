@@ -1,16 +1,17 @@
 from rest_framework import serializers
 
-from users.models import CustomUser
+from recipes.models import Recipe
+from users.models import CustomUser, UserFollower
 
 
 class UserSerializer(serializers.ModelSerializer):
-   # is_subscribed = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
-    #def get_is_subscribed(self, obj):
-       # return obj.followers.filter(
-          #  user=self.context.get('follower'),
-           # following=obj.author
-      #  )
+    def get_is_subscribed(self, obj):
+        return obj.followers.filter(
+            follower=self.context.get('user'),
+            author=obj
+        ).exists()
 
     class Meta:
         model = CustomUser
@@ -20,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            #'is_subscribed',
+            'is_subscribed',
         )
 
 
@@ -42,37 +43,34 @@ class UserMeSerializer(UserSerializer):
         model = CustomUser
         fields = UserSerializer.Meta.fields
         read_only_fields = (
-           # 'is_subscribed',
+            'is_subscribed',
         )
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
-    #is_subscribed = UserSerializer(read_only=True)
+
+    author = UserSerializer(read_only=True)
 
     def get_recipes(self, obj):
-        return obj.recipes.filter(author=obj.author)
+        return Recipe.objects.filter(author=obj)
 
     def get_recipes_count(self, obj):
         return self.get_recipes.count()
 
-    def validate(self, data):
-        if self.context['request'].user == data['following']:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя!'
-            )
-        return data
-
     class Meta:
-        model = CustomUser
-        fields = fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            #'is_subscribed',
+        model = UserFollower
+        fields = (
+            'author',
             'recipes',
             'recipes_count',
         )
+
+
+class SubscribeListSerializer(SubscribeSerializer):
+
+    class Meta:
+        model = UserFollower
+        fields = SubscribeSerializer.Meta.fields
+        read_only_fields = '__all__'

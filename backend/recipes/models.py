@@ -87,7 +87,7 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name[:30]
-    
+
     def formatted_text(self):
         return '<br>'.join(self.text.splitlines())
 
@@ -109,19 +109,19 @@ class RecipeIngredient(models.Model):
         verbose_name='Количество ингредиента',
     )
 
-"""
+
 class Favorite(models.Model):
     user = models.ForeignKey(
         CustomUser,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )
-    recipe = models.ManyToOne(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
     )
 
-
+    '''
 class Cart(Favorite):
     pass
-"""
+    '''

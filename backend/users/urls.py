@@ -1,13 +1,17 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from users.views import SubscribeViewSet
+from users.views import SubscribeViewSet, SubscribeListViewSet
 
 router = routers.DefaultRouter()
 
-router.register('users/subsciptions', SubscribeViewSet)
 router.register(
-    r'users/(?P<user_id>\d+)/subscribe', SubscribeViewSet
+    'users/subscriptions', SubscribeListViewSet,
+    basename='subscriptions'
+)
+router.register(
+    r'users/(?P<user_id>\d+)/subscribe', SubscribeViewSet,
+    basename='subscribe'
 )
 
 app_name = 'users'

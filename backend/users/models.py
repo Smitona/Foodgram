@@ -69,4 +69,6 @@ class UserFollower(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f'{self.follower} подписан на {self.author}'
+        return '{} подписан на {}'.format(
+            self.follower, self.author
+        )

@@ -3,7 +3,9 @@ from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import Recipe, Ingredient, Tag, RecipeIngredient
+from recipes.models import (
+    Recipe, Ingredient, Tag, RecipeIngredient, Favorite
+)
 from users.serializers import UserSerializer
 
 
@@ -76,7 +78,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     author = UserSerializer(read_only=True)
     text = serializers.SerializerMethodField()
-    # is_favorited = serializers.BooleanField(read_only=True)
+    is_favorited = serializers.BooleanField(read_only=True)
     # is_in_shopping_cart = serializers.BooleanField(read_only=True)
 
     class Meta:
@@ -90,7 +92,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name',
             'text',
             'cooking_time',
-            # 'is_favorited',
+            'is_favorited',
             # 'is_in_shopping_cart',
         )
 
@@ -98,8 +100,16 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_text(obj):
         return obj.formatted_text()
 
-    """ def get_is_favorited(self):
-        pass """
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Favorite.objects.filter(
+            user=user,
+            recipe=obj
+        ).exists()
+
+
     """ def get_is_in_shopping_cart(self):"""
 
 
@@ -181,8 +191,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             }
         ).data
 
-'''
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Recipe.objects.all(),
+        source='recipe.id'
+    )
 
     class Meta:
         model = Favorite
@@ -192,23 +218,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
             'recipe',
         )
 
-
     def validate(self, data):
         if self.context['request'].method == 'POST':
             recipe_id = self.context.get('view').kwargs.get('recipe_id')
-            recipe = get_object_or_404(Recipe, pk=recipe_id)
             user = self.context['request'].user
 
-        if Recipe.objects.filter(name=recipe, user=user).exists():
+        if Recipe.objects.filter(id=recipe_id, user=user).exists():
             raise serializers.ValidationError(
                 'Вы уже добавили рецепт в избранное!',
             )
         return data
-    
+
     def to_representation(self, instance):
-        return Seralizer(
+        return ShortRecipeSerializer(
             instance, context={
                 'request': self.context.get('request')
             }
         ).data
-'''
