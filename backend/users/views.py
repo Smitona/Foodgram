@@ -16,8 +16,11 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     #search_fields = ()
 
     def get_queryset(self, *args, **kwargs):
-        return (UserFollower.objects.select_related('follower')
-                .filter(follower=self.request.user))
+        return (
+            UserFollower.objects.select_related('follower').filter(
+                follower=CustomUser.objects.get(username=self.request.user)
+            )
+        )
 
     def get_author(self):
         user_id = self.kwargs.get('user_id')
@@ -26,7 +29,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(
-            follower=self.request.user,
+            follower=CustomUser.objects.get(username=self.request.user),
             author=self.get_author()
         )
 
@@ -35,5 +38,8 @@ class SubscribeListViewSet(viewsets.ModelViewSet):
     serializer_class = SubscribeSerializer
 
     def get_queryset(self, *args, **kwargs):
-        return (UserFollower.objects.select_related('follower')
-                .filter(follower=self.request.user))
+        return (
+            UserFollower.objects.select_related('follower').filter(
+                follower=CustomUser.objects.get(username=self.request.user)
+            )
+        )
