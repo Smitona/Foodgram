@@ -121,6 +121,20 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite',
+            )
+        ]
+
+    def __str__(self) -> str:
+        return 'Рецепт {} добавлен в избранное.'.format(
+            self.recipe.name
+        )
+
+
     '''
 class Cart(Favorite):
     pass

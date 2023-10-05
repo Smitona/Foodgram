@@ -1,12 +1,13 @@
 from drf_extra_fields.fields import Base64ImageField
 
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from recipes.models import (
     Recipe, Ingredient, Tag, RecipeIngredient, Favorite
 )
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, ShortRecipeSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -136,19 +137,38 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
-    '''
+
     def validate(self, data):
         if self.context['request'].method == 'POST':
-            recipe_id = self.context.get('view').kwargs.get('recipe_id')
-            recipe = get_object_or_404(Recipe, pk=recipe_id)
+            recipe_name = data.get('name')
             author = self.context['request'].user
-
-        if Recipe.objects.filter(id=recipe_id, author=author).exists():
+        if Recipe.objects.filter(name=recipe_name, author=author).exists():
             raise serializers.ValidationError(
                 'Вы уже создали рецепт с таким названием!',
             )
+
+        ingredients = data.get('ingredients')
+        if not ingredients:
+            raise serializers.ValidationError(
+                {'ingredients': 'Рецепт нельзя создать без ингредиентов!'},
+            )
+        if len(ingredients) != len(set(ingredients)):
+            raise serializers.ValidationError(
+                {'ingredients': 'Ингредиенты не могут повторяться!'}
+            )
+
+        tags = data.get('tags')
+        if not tags:
+            raise serializers.ValidationError(
+                {'tags': 'Рецепту нужен хотя бы один тег!'}
+            )
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError(
+                {'tags': 'Теги должны быть уникальными!'}
+            )
+
         return data
-    '''
+
     @staticmethod
     def create_ingredients(ingredients, recipe):
         RecipeIngredient.objects.bulk_create([
@@ -159,6 +179,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             for ingredient in ingredients
         ])
 
+    @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -190,18 +211,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request')
             }
         ).data
-
-
-class ShortRecipeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

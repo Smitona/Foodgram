@@ -55,11 +55,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def add_to(self, request, Model, message, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
-
         Model.objects.create(
                 user=self.request.user,
                 recipe=recipe
             )
+
         return Response(
                 {'detail': message},
                 ShortRecipeSerializer(recipe).data,
@@ -73,13 +73,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=self.request.user,
                 recipe=recipe
             ).delete()
+
         return Response(
             {'detail': message},
             status=status.HTTP_204_NO_CONTENT
         )
 
     @action(
-        detail=True, methods=('post','delete',)
+        detail=True, methods=('post', 'delete',)
     )
     def favorite(self, request, **kwargs):
 
