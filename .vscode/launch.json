@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Django: runserver",
+            "name": "Python: Django",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}\\backend\\manage.py",
@@ -15,7 +15,6 @@
             ],
             "env": {
                 "DJANGO_DEBUG": "True",
-                "DJANGO_USE_SQLITE": "True"
             },
             "django": true,
             "justMyCode": false

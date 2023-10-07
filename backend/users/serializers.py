@@ -1,4 +1,7 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
 from users.models import CustomUser, UserFollower
@@ -70,26 +73,29 @@ class FollowSerializer(serializers.ModelSerializer):
             'author',
             'follower'
         )
-    '''
+
     def validate(self, data):
         if self.context['request'].method == 'POST':
+            author_id = self.context.get('view').kwargs.get('user_id')
+            author = get_object_or_404(CustomUser, pk=author_id)
+
             user = self.context['request'].user
 
-        if UserFollower.objects.filter(
-            follower=user,
-            author=data['author']
-        ).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны на этого автора!'
-            )
+            if user == author:
+                raise serializers.ValidationError(
+                    'Нельзя подписаться на самого себя!'
+                )
 
-        if user == data['author']:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя!'
-            )
+            if UserFollower.objects.filter(
+                follower=user,
+                author=author
+            ).exists():
+                raise serializers.ValidationError(
+                    'Вы уже подписаны на этого автора!'
+                )
 
-        return data
-    '''
+            return data
+
     def to_representation(self, instance):
         return SubscribeSerializer(
             instance.author, context=self.context

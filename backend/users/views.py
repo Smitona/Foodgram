@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from users.models import CustomUser, UserFollower
-from users.serializers import FollowSerializer
+from users.serializers import FollowSerializer, SubscribeSerializer
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
@@ -56,7 +56,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
 
 
 class SubscribeListViewSet(viewsets.ModelViewSet):
-    serializer_class = FollowSerializer
+    serializer_class = SubscribeSerializer
 
     def get_queryset(self, *args, **kwargs):
         return CustomUser.objects.filter(

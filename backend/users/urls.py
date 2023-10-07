@@ -6,11 +6,13 @@ from users.views import SubscribeViewSet, SubscribeListViewSet
 router = routers.DefaultRouter()
 
 router.register(
-    'users/subscriptions', SubscribeListViewSet,
+    'users/subscriptions',
+    SubscribeListViewSet,
     basename='subscriptions'
 )
 router.register(
-    r'users/(?P<user_id>\d+)/subscribe', SubscribeViewSet,
+    r'users/(?P<user_id>\d+)/subscribe',
+    SubscribeViewSet,
     basename='subscribe'
 )
 
