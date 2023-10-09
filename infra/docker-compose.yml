@@ -22,9 +22,8 @@ services:
 
   frontend:
     image: smitona/fd_frontend
-    command: cp -r /app/build/. /static/
+    command: cp -r /app/build/. /frontend_static/
     volumes:
-      - ../frontend/:/app/result_build/
       - static:/frontend_static
 
   gateway:
