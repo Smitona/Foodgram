@@ -12,17 +12,21 @@ from api.serializers import (
     ShortRecipeSerializer
 )
 from api.permissions import AuthorOrReadOnly
+from api.pagination import ResultsSetPagination
+
 from recipes.models import Ingredient, Tag, Recipe, Favorite
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientListSerializer
+    pagination_class = None
 
     # filter_backends =
     # search_fields =
@@ -31,6 +35,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           AuthorOrReadOnly,)
+    pagination_class = ResultsSetPagination
 
     # filter_backends =
     # search_fields =
@@ -53,8 +58,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @staticmethod
-    def add_to(self, request, Model, message, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
+    def add_to(self, Model, message, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=kwargs['pk'])
         Model.objects.create(
                 user=self.request.user,
                 recipe=recipe
@@ -68,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def delete_from(self, Model, message, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
+        recipe = get_object_or_404(Recipe, pk=kwargs['pk'])
         Model.objects.get(
                 user=self.request.user,
                 recipe=recipe
@@ -111,4 +116,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 self, Model=Cart,
                 message='Рецепт удалён из корзины'
             )
+
+    @action(
+        detail=True, methods=('post','delete',)
+    )     
+    def download_shopping_cart(self, request):
+        groceries = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user
+        )
+        groceries = groceries.filter(
+            
+        )
+
 '''
+

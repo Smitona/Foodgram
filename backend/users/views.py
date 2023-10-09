@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
+from api.pagination import ResultsSetPagination
+
 from users.models import CustomUser, UserFollower
 from users.serializers import FollowSerializer, SubscribeSerializer
 
@@ -57,6 +59,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
 
 class SubscribeListViewSet(viewsets.ModelViewSet):
     serializer_class = SubscribeSerializer
+    pagination_class = ResultsSetPagination
 
     def get_queryset(self, *args, **kwargs):
         return CustomUser.objects.filter(

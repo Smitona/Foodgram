@@ -13,12 +13,14 @@ class BaseAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(BaseAdmin):
     list_display = (
+        'id',
         'name',
         'measurement_unit',
     )
     list_filter = (
         'name',
     )
+    search_fields = ('name',)
 
 
 class IngredientInline(admin.TabularInline):
@@ -45,6 +47,7 @@ class RecipeAmdin(BaseAdmin):
     list_filter = (
         'author',
     )
+    search_fields = ('name',)
 
 
 @admin.register(Tag)

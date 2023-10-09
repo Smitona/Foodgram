@@ -139,6 +139,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
+
         if self.context['request'].method == 'POST':
             recipe_name = data.get('name')
             author = self.context['request'].user
@@ -152,7 +153,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'ingredients': 'Рецепт нельзя создать без ингредиентов!'},
             )
-        if len(ingredients) != len(set(ingredients)):
+        names = []
+        for ingredient in ingredients:
+            ingredient_obj = ingredient['ingredient']['id']
+            ingredient_name = ingredient_obj.name
+            names.append(ingredient_name)
+        if len(names) != len(set(names)):
             raise serializers.ValidationError(
                 {'ingredients': 'Ингредиенты не могут повторяться!'}
             )
