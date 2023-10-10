@@ -6,7 +6,7 @@ from recipes.models import Recipe
 from users.models import CustomUser, UserFollower
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
@@ -27,23 +27,10 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password'
-        )
-
-
-class UserMeSerializer(UserSerializer):
+class UserMeSerializer(CustomUserSerializer):
     class Meta:
         model = CustomUser
-        fields = UserSerializer.Meta.fields
+        fields = CustomUserSerializer.Meta.fields
         read_only_fields = (
             'is_subscribed',
         )

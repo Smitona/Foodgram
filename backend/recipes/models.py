@@ -110,7 +110,7 @@ class RecipeIngredient(models.Model):
     )
 
 
-class Favorite(models.Model):
+class Fields(models.Model):
     user = models.ForeignKey(
         CustomUser,
         verbose_name='Пользователь',
@@ -120,6 +120,12 @@ class Favorite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        abstract = True
+
+
+class Favorite(Fields):
 
     class Meta:
         constraints = [
@@ -135,17 +141,7 @@ class Favorite(models.Model):
         )
 
 
-    '''
-class Cart(models.Model):
-    user = models.ForeignKey(
-        CustomUser,
-        verbose_name='Пользователь',
-        on_delete=models.CASCADE,
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-    )
+class Cart(Fields):
 
     class Meta:
         constraints = [
@@ -156,8 +152,6 @@ class Cart(models.Model):
         ]
 
     def __str__(self) -> str:
-        return 'Рецепт {} добавлен в корзину.'.format(
-            self.recipe.name
+        return 'Рецепт {} добавлен в корзину {} {}.'.format(
+            self.recipe.name, self.user.first_name, self.user.last_name
         )
-
-    '''

@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Exists, OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins, permissions, viewsets, status
@@ -17,7 +18,7 @@ from api.serializers import (
 from api.permissions import AuthorOrReadOnly
 from api.pagination import ResultsSetPagination
 
-from recipes.models import Ingredient, Tag, Recipe, Favorite
+from recipes.models import Ingredient, Tag, Recipe, Favorite, Cart
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -44,10 +45,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # search_fields =
 
     def get_queryset(self, *args, **kwargs):
-        recipes = Recipe.objects.select_related(
+        queryset = Recipe.objects.select_related(
             'author').prefetch_related(
                 'ingredients',
             )
+        recipes = queryset.annotate(
+            is_favorited=Exists(
+                Favorite.objects.filter(
+                    user=self.request.user,
+                    recipe__pk=OuterRef('pk')
+                )
+            ),
+            is_in_shopping_cart=Exists(
+                Cart.objects.filter(
+                    user=self.request.user,
+                    recipe__pk=OuterRef('pk')
+                )
+            )
+        )
         return recipes
 
     def get_serializer_class(self):
@@ -116,31 +131,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 self, Model=Favorite,
                 pk=pk
             )
-'''
+
     @action(
-        detail=True, methods=('post','delete',)
+        detail=True, methods=('post', 'delete',)
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
             return self.add_to(
                 self, Model=Cart,
+                pk=pk
             )
 
         if request.method == 'DELETE':
             return self.delete_from(
                 self, Model=Cart,
+                pk=pk
             )
-
+    ''''
     @action(
         detail=True, methods=('post','delete',)
-    )     
+    )
     def download_shopping_cart(self, request):
         groceries = RecipeIngredient.objects.filter(
             recipe__shopping_cart__user=request.user
         )
         groceries = groceries.filter(
-            
-        )
 
-'''
+        )
+    '''
 

@@ -7,7 +7,7 @@ from rest_framework import serializers
 from recipes.models import (
     Recipe, Ingredient, Tag, RecipeIngredient, Favorite
 )
-from users.serializers import UserSerializer, ShortRecipeSerializer
+from users.serializers import CustomUserSerializer, ShortRecipeSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -77,10 +77,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
          read_only=True, many=True,
     )
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     text = serializers.SerializerMethodField()
     is_favorited = serializers.BooleanField(read_only=True)
-    # is_in_shopping_cart = serializers.BooleanField(read_only=True)
+    is_in_shopping_cart = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -94,28 +94,16 @@ class RecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
             'is_favorited',
-            # 'is_in_shopping_cart',
+            'is_in_shopping_cart',
         )
 
     @staticmethod
     def get_text(obj):
         return obj.formatted_text()
 
-    def get_is_favorited(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
-            return False
-        return Favorite.objects.filter(
-            user=user,
-            recipe=obj
-        ).exists()
-
-
-    """ def get_is_in_shopping_cart(self):"""
-
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = AddIngredientSerializer(
         many=True,
     )
@@ -218,7 +206,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             }
         ).data
 
-
+'''
 class FavoriteSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Recipe.objects.all(),
@@ -250,3 +238,4 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request')
             }
         ).data
+'''

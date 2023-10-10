@@ -1,23 +1,20 @@
-from rest_framework import viewsets, permissions, filters, status
-from rest_framework.views import APIView
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from api.pagination import ResultsSetPagination
 
 from users.models import CustomUser, UserFollower
-from users.serializers import FollowSerializer, SubscribeSerializer
+from users.serializers import (
+    FollowSerializer, SubscribeSerializer,
+    CustomUserSerializer
+)
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
 
-    permission_classes = (permissions.IsAuthenticated,)
-
-    #filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    #search_fields = ()
+    permission_classes = (IsAuthenticated,)
 
     def get_author(self):
         user_id = self.kwargs.get('user_id')
