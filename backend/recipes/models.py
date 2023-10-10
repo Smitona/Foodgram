@@ -66,7 +66,7 @@ class Recipe(models.Model):
         blank=False,
     )
     image = models.ImageField(
-        upload_to='/images/',
+        upload_to='recipes/images/',
         blank=False,
         null=False,
         verbose_name='Ссылка на картинку на сайте',
@@ -130,12 +130,34 @@ class Favorite(models.Model):
         ]
 
     def __str__(self) -> str:
-        return 'Рецепт {} добавлен в избранное.'.format(
-            self.recipe.name
+        return 'Рецепт {} в избранном у {} {}.'.format(
+            self.recipe.name, self.user.first_name, self.user.last_name
         )
 
 
     '''
-class Cart(Favorite):
-    pass
+class Cart(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_cart_item',
+            )
+        ]
+
+    def __str__(self) -> str:
+        return 'Рецепт {} добавлен в корзину.'.format(
+            self.recipe.name
+        )
+
     '''

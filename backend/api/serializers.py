@@ -141,12 +141,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
 
         if self.context['request'].method == 'POST':
-            recipe_name = data.get('name')
+            name = data.get('name')
             author = self.context['request'].user
-        if Recipe.objects.filter(name=recipe_name, author=author).exists():
-            raise serializers.ValidationError(
-                'Вы уже создали рецепт с таким названием!',
-            )
+            if Recipe.objects.filter(name=name, author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже создали рецепт с таким названием!',
+                )
 
         ingredients = data.get('ingredients')
         if not ingredients:

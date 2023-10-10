@@ -18,7 +18,7 @@ services:
     env_file: ../.env
     volumes:
       - static:/app/backend_static/
-      - media:/app/media/
+      - media:/media/
 
   frontend:
     image: smitona/fd_frontend
@@ -30,10 +30,10 @@ services:
     image: smitona/fd_gateway
     env_file: ../.env
     ports:
-      - 9090:80
+      - 80:80
     volumes:
       - static:/var/html/static/
-      - media:/var/html/media/
+      - media:/media/
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/

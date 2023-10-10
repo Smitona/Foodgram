@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from recipes.models import (
     Ingredient, Tag, Recipe,
-    RecipeTag, RecipeIngredient
+    RecipeTag, RecipeIngredient,
+    Favorite
 )
 
 
@@ -54,3 +55,6 @@ class RecipeAmdin(BaseAdmin):
 class TagAdmin(BaseAdmin):
     pass
 
+@admin.register(Favorite)
+class FavoriteAdmin(BaseAdmin):
+    pass
