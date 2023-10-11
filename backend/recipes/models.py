@@ -119,6 +119,7 @@ class Fields(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='in_%(class)s'
     )
 
     class Meta:

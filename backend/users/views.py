@@ -24,7 +24,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         return (
             UserFollower.objects.select_related('follower').filter(
-                follower=self.get_follower()
+                follower=self.request.user
             )
         )
 
@@ -59,6 +59,8 @@ class SubscribeListViewSet(viewsets.ModelViewSet):
     pagination_class = ResultsSetPagination
 
     def get_queryset(self, *args, **kwargs):
-        return CustomUser.objects.filter(
-            followers__follower=self.request.user
+        return (
+            CustomUser.objects.filter(
+                following__follower=self.request.user
+            )
         )

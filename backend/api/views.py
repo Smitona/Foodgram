@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Sum, F
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins, permissions, viewsets, status
@@ -10,6 +11,7 @@ from rest_framework.permissions import (
     AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 )
 
+from api.filters import IngredientFilter, RecipeFilter
 from api.serializers import (
     RecipeSerializer, RecipeCreateSerializer,
     IngredientListSerializer, TagSerializer,
@@ -18,7 +20,9 @@ from api.serializers import (
 from api.permissions import AuthorOrReadOnly
 from api.pagination import ResultsSetPagination
 
-from recipes.models import Ingredient, Tag, Recipe, Favorite, Cart
+from recipes.models import (
+    Ingredient, RecipeIngredient, Tag, Recipe, Favorite, Cart
+)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,8 +36,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientListSerializer
     pagination_class = None
 
-    # filter_backends =
-    # search_fields =
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -41,8 +45,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                           AuthorOrReadOnly,)
     pagination_class = ResultsSetPagination
 
-    # filter_backends =
-    # search_fields =
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_queryset(self, *args, **kwargs):
         queryset = Recipe.objects.select_related(
@@ -133,7 +137,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
     @action(
-        detail=True, methods=('post', 'delete',)
+        detail=True, methods=('post', 'delete',),
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
@@ -147,16 +152,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 self, Model=Cart,
                 pk=pk
             )
-    ''''
+
     @action(
-        detail=True, methods=('post','delete',)
+        detail=False, methods=('get',),
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        groceries = RecipeIngredient.objects.filter(
-            recipe__shopping_cart__user=request.user
+        groceries = RecipeIngredient.objects.select_related(
+            'recipe', 'ingredient'
         )
         groceries = groceries.filter(
-
+            recipe__cart__user=request.user
         )
-    '''
 
+        groceries = groceries.values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(
+            name=F('ingredient__name'),
+            measur_units=F('ingredient__measurement_unit'),
+            total=Sum('amount'),
+        ).order_by('-ingredient__name')
+
+        text = 'Список покупок:\n\n' + '\n'.join([
+            (f"{food['name']} нужно {food['total']} {food['measur_units']}")
+            for food in groceries
+        ])
+
+        response = HttpResponse(text, content_type='application/txt')
+        response['content-Disposition'] = (
+            'attachment; filename="shopping_cart.txt"'
+        )
+
+        return response
