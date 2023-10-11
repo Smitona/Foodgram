@@ -75,12 +75,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         source='recipeingredient_set'
     )
     tags = TagSerializer(
-         read_only=True, many=True,
+        read_only=True, many=True,
     )
     author = CustomUserSerializer(read_only=True)
     text = serializers.SerializerMethodField()
-    is_favorited = serializers.BooleanField(read_only=True)
-    is_in_shopping_cart = serializers.BooleanField(read_only=True)
+    is_favorited = serializers.BooleanField(
+        read_only=True, default=False
+    )
+    is_in_shopping_cart = serializers.BooleanField(
+        read_only=True, default=False
+    )
 
     class Meta:
         model = Recipe
@@ -96,6 +100,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_favorited',
             'is_in_shopping_cart',
         )
+        read_only_fields = ('pub_date',)
 
     @staticmethod
     def get_text(obj):

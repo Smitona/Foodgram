@@ -3,7 +3,7 @@ from django.contrib import admin
 from recipes.models import (
     Ingredient, Tag, Recipe,
     RecipeTag, RecipeIngredient,
-    Favorite
+    Favorite, Cart
 )
 
 
@@ -46,7 +46,9 @@ class RecipeAmdin(BaseAdmin):
         'name',
     )
     list_filter = (
+        'name',
         'author',
+        'tags',
     )
     search_fields = ('name',)
 
@@ -57,4 +59,8 @@ class TagAdmin(BaseAdmin):
 
 @admin.register(Favorite)
 class FavoriteAdmin(BaseAdmin):
+    pass
+
+@admin.register(Cart)
+class CartAdmin(BaseAdmin):
     pass

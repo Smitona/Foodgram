@@ -9,7 +9,10 @@ class BaseAdmin(admin.ModelAdmin):
 
 @admin.register(CustomUser)
 class CustomUserAdmin(BaseAdmin):
-    pass
+    list_filter = (
+        'first_name',
+        'email',
+    )
 
 
 @admin.register(UserFollower)

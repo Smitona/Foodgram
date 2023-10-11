@@ -6,9 +6,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import (
-    AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+    IsAuthenticatedOrReadOnly, IsAuthenticated
 )
 
 from api.filters import IngredientFilter, RecipeFilter
@@ -45,7 +45,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                           AuthorOrReadOnly,)
     pagination_class = ResultsSetPagination
 
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    ordering_fields = ('pub_date', 'name')
+    ordering = ('-pub_date')
     filterset_class = RecipeFilter
 
     def get_queryset(self, *args, **kwargs):
@@ -53,21 +55,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'author').prefetch_related(
                 'ingredients',
             )
-        recipes = queryset.annotate(
-            is_favorited=Exists(
-                Favorite.objects.filter(
-                    user=self.request.user,
-                    recipe__pk=OuterRef('pk')
-                )
-            ),
-            is_in_shopping_cart=Exists(
-                Cart.objects.filter(
-                    user=self.request.user,
-                    recipe__pk=OuterRef('pk')
+        if self.request.user.is_authenticated:
+            recipes = queryset.annotate(
+                is_favorited=Exists(
+                    Favorite.objects.filter(
+                        user=self.request.user,
+                        recipe__pk=OuterRef('pk')
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    Cart.objects.filter(
+                        user=self.request.user,
+                        recipe__pk=OuterRef('pk')
+                    )
                 )
             )
-        )
-        return recipes
+
+            return recipes
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -80,78 +84,65 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @staticmethod
-    def add_to(self, Model, pk):
-        if Model.objects.filter(
-            user=self.request.user,
-            recipe=pk
-        ).exists():
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    def add_del(self, request, Model, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        Model.objects.create(
+
+        if request.method == 'POST':
+            if Model.objects.filter(
                 user=self.request.user,
-                recipe=recipe
-            )
+                recipe=pk
+            ).exists():
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        return Response(
-                ShortRecipeSerializer(recipe).data,
-                status=status.HTTP_201_CREATED
-            )
+            Model.objects.create(
+                    user=request.user,
+                    recipe=recipe
+                )
 
-    @staticmethod
-    def delete_from(self, Model, pk):
-        if not Model.objects.filter(
-            user=self.request.user,
-            recipe=pk
-        ).exists():
             return Response(
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        recipe = get_object_or_404(Recipe, pk=pk)
-        Model.objects.get(
+                    ShortRecipeSerializer(recipe).data,
+                    status=status.HTTP_201_CREATED
+                )
+
+        if request.method == 'DELETE':
+            if not Model.objects.filter(
                 user=self.request.user,
+                recipe=pk
+            ).exists():
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Model.objects.get(
+                user=request.user,
                 recipe=recipe
             ).delete()
 
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-        )
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
 
     @action(
         detail=True, methods=('post', 'delete',),
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
-
-        if request.method == 'POST':
-            return self.add_to(
-                self, Model=Favorite,
-                pk=pk
-            )
-
-        if request.method == 'DELETE':
-            return self.delete_from(
-                self, Model=Favorite,
-                pk=pk
-            )
+        return self.add_del(
+            self, request,
+            Model=Favorite,
+            pk=pk
+        )
 
     @action(
         detail=True, methods=('post', 'delete',),
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(
-                self, Model=Cart,
-                pk=pk
-            )
-
-        if request.method == 'DELETE':
-            return self.delete_from(
-                self, Model=Cart,
-                pk=pk
-            )
+        return self.add_del(
+            self, request,
+            Model=Cart, pk=pk
+        )
 
     @action(
         detail=False, methods=('get',),
@@ -162,7 +153,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'recipe', 'ingredient'
         )
         groceries = groceries.filter(
-            recipe__cart__user=request.user
+            recipe__carts__user=self.request.user
         )
 
         groceries = groceries.values(
@@ -171,7 +162,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             name=F('ingredient__name'),
             measur_units=F('ingredient__measurement_unit'),
             total=Sum('amount'),
-        ).order_by('-ingredient__name')
+        ).order_by('-name')
 
         text = 'Список покупок:\n\n' + '\n'.join([
             (f"{food['name']} нужно {food['total']} {food['measur_units']}")

@@ -84,6 +84,7 @@ class Recipe(models.Model):
             MaxValueValidator(100)
         ]
     )
+    pub_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.name[:30]
