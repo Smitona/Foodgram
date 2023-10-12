@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.pagination import ResultsSetPagination
 
 from users.models import CustomUser, UserFollower
-from users.serializers import FollowSerializer, SubscribeSerializer,
+from users.serializers import FollowSerializer, SubscribeSerializer
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
