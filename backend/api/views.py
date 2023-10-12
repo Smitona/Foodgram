@@ -3,7 +3,7 @@ from django.db.models import Exists, OuterRef, Sum, F
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import mixins, permissions, viewsets, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
@@ -53,9 +53,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self, *args, **kwargs):
         recipes = Recipe.objects.select_related(
-            'author').prefetch_related(
-                'ingredients',
-            )
+            'author').prefetch_related('ingredients')
+
         if self.request.user.is_authenticated:
             recipes = recipes.annotate(
                 is_favorited=Exists(
@@ -98,14 +97,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
 
             Model.objects.create(
-                    user=request.user,
-                    recipe=recipe
-                )
+                user=request.user,
+                recipe=recipe
+            )
 
             return Response(
-                    ShortRecipeSerializer(recipe).data,
-                    status=status.HTTP_201_CREATED
-                )
+                ShortRecipeSerializer(recipe).data,
+                status=status.HTTP_201_CREATED
+            )
 
         if request.method == 'DELETE':
             if not obj_exists:

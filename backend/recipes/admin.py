@@ -38,8 +38,8 @@ class TagInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(BaseAdmin):
     inlines = [
-       IngredientInline,
-       TagInline,
+        IngredientInline,
+        TagInline,
     ]
     list_display = (
         'id',
@@ -68,9 +68,11 @@ class RecipeAdmin(BaseAdmin):
 class TagAdmin(BaseAdmin):
     pass
 
+
 @admin.register(Favorite)
 class FavoriteAdmin(BaseAdmin):
     pass
+
 
 @admin.register(Cart)
 class CartAdmin(BaseAdmin):

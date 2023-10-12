@@ -1,13 +1,13 @@
 from drf_extra_fields.fields import Base64ImageField
 
 from django.db import transaction
-from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 
 from recipes.models import (
-    Recipe, Ingredient, Tag, RecipeIngredient, Favorite
+    Recipe, Ingredient, Tag, RecipeIngredient
 )
-from users.serializers import CustomUserSerializer, ShortRecipeSerializer
+from users.serializers import CustomUserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -34,13 +34,13 @@ class IngredientListSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(
-       source='ingredient.id'
+        source='ingredient.id'
     )
     measurement_unit = serializers.ReadOnlyField(
-       source='ingredient.measurement_unit'
+        source='ingredient.measurement_unit'
     )
     name = serializers.ReadOnlyField(
-       source='ingredient.name'
+        source='ingredient.name'
     )
 
     class Meta:
@@ -210,37 +210,3 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request')
             }
         ).data
-
-'''
-class FavoriteSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
-        source='recipe.id'
-    )
-
-    class Meta:
-        model = Favorite
-        fields = (
-            'id',
-            'user',
-            'recipe',
-        )
-
-    def validate(self, data):
-        if self.context['request'].method == 'POST':
-            recipe_id = self.context.get('view').kwargs.get('recipe_id')
-            user = self.context['request'].user
-
-        if Recipe.objects.filter(id=recipe_id, user=user).exists():
-            raise serializers.ValidationError(
-                'Вы уже добавили рецепт в избранное!',
-            )
-        return data
-
-    def to_representation(self, instance):
-        return ShortRecipeSerializer(
-            instance, context={
-                'request': self.context.get('request')
-            }
-        ).data
-'''

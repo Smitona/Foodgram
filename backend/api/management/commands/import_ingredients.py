@@ -37,11 +37,9 @@ class Command(BaseCommand):
             import_func(csv_data)
 
     def import_ingredients(self, csv_data):
-        ingredients = [
-            Ingredient(
-                        name=row['name'],
-                        measurement_unit=row['measurement_unit'],
-            )
-            for row in csv_data
+        ingredients = [Ingredient(
+            name=row['name'],
+            measurement_unit=row['measurement_unit'],
+        ) for row in csv_data
         ]
         Ingredient.objects.bulk_create(ingredients)

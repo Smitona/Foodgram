@@ -105,7 +105,6 @@ DJOSER = {
         'user_create': ['rest_framework.permissions.AllowAny'],
         'user': ['rest_framework.permissions.AllowAny'],
         'user_list': ['rest_framework.permissions.AllowAny'],
-        #'current_user': 'rest_framework.permissions.CurrentUserOrAdmin',
         'user_delete': ['rest_framework.permissions.AllowAny'],
     }
 }
