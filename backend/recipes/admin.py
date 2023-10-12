@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.contrib import admin
 
 from recipes.models import (
@@ -35,7 +36,7 @@ class TagInline(admin.TabularInline):
 
 
 @admin.register(Recipe)
-class RecipeAmdin(BaseAdmin):
+class RecipeAdmin(BaseAdmin):
     inlines = [
        IngredientInline,
        TagInline,
@@ -44,6 +45,7 @@ class RecipeAmdin(BaseAdmin):
         'id',
         'author',
         'name',
+        'favorited_count',
     )
     list_filter = (
         'name',
@@ -51,6 +53,15 @@ class RecipeAmdin(BaseAdmin):
         'tags',
     )
     search_fields = ('name',)
+
+    def get_queryset(self, request):
+        queryset = super(RecipeAdmin, self).get_queryset(request)
+        return queryset.annotate(
+            favorited_count=Count('in_favorite')
+        )
+
+    def favorited_count(self, obj):
+        return obj.favorited_count
 
 
 @admin.register(Tag)

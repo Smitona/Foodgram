@@ -46,17 +46,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = ResultsSetPagination
 
     filter_backends = (DjangoFilterBackend, OrderingFilter)
-    ordering_fields = ('pub_date', 'name')
-    ordering = ('-pub_date')
     filterset_class = RecipeFilter
 
+    ordering_fields = ('pub_date', 'name')
+    ordering = ('-pub_date',)
+
     def get_queryset(self, *args, **kwargs):
-        queryset = Recipe.objects.select_related(
+        recipes = Recipe.objects.select_related(
             'author').prefetch_related(
                 'ingredients',
             )
         if self.request.user.is_authenticated:
-            recipes = queryset.annotate(
+            recipes = recipes.annotate(
                 is_favorited=Exists(
                     Favorite.objects.filter(
                         user=self.request.user,
@@ -71,7 +72,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
             )
 
-            return recipes
+        return recipes
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -86,12 +87,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def add_del(self, request, Model, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-
+        obj_exists = Model.objects.filter(
+            user=self.request.user,
+            recipe=pk
+        ).exists()
         if request.method == 'POST':
-            if Model.objects.filter(
-                user=self.request.user,
-                recipe=pk
-            ).exists():
+            if obj_exists:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST
                 )
@@ -107,10 +108,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
 
         if request.method == 'DELETE':
-            if not Model.objects.filter(
-                user=self.request.user,
-                recipe=pk
-            ).exists():
+            if not obj_exists:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST
                 )
@@ -153,7 +151,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'recipe', 'ingredient'
         )
         groceries = groceries.filter(
-            recipe__carts__user=self.request.user
+            recipe__in_cart__user=self.request.user
         )
 
         groceries = groceries.values(

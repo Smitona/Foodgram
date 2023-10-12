@@ -84,7 +84,10 @@ class Recipe(models.Model):
             MaxValueValidator(100)
         ]
     )
-    pub_date = models.DateField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.name[:30]
