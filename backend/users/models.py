@@ -4,6 +4,8 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    """Модель пользователей."""
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -39,6 +41,8 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
     def __str__(self) -> str:
@@ -46,6 +50,8 @@ class CustomUser(AbstractUser):
 
 
 class UserFollower(models.Model):
+    """Модель подписок на авторов рецептов."""
+
     follower = models.ForeignKey(
         CustomUser,
         verbose_name='Подписчик',
@@ -61,6 +67,8 @@ class UserFollower(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
                 fields=['follower', 'author'],

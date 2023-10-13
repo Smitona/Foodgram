@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Exists, OuterRef, Sum, F
+from django.db.models import Exists, OuterRef, Prefetch, Sum, F
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -15,7 +15,6 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.serializers import (
     RecipeSerializer, RecipeCreateSerializer,
     IngredientListSerializer, TagSerializer,
-    ShortRecipeSerializer
 )
 from api.permissions import AuthorOrReadOnly
 from api.pagination import ResultsSetPagination
@@ -23,6 +22,8 @@ from api.pagination import ResultsSetPagination
 from recipes.models import (
     Ingredient, RecipeIngredient, Tag, Recipe, Favorite, Cart
 )
+
+from users.serializers import ShortRecipeSerializer
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -52,8 +53,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering = ('-pub_date',)
 
     def get_queryset(self, *args, **kwargs):
-        recipes = Recipe.objects.select_related(
-            'author').prefetch_related('ingredients')
+        recipes = Recipe.objects.prefetch_related(Prefetch(
+            'ingredients',
+            queryset=RecipeIngredient.objects.select_related(
+                'recipe', 'ingredient'
+            )
+        )).select_related('author')
 
         if self.request.user.is_authenticated:
             recipes = recipes.annotate(

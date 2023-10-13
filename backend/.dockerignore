@@ -1,6 +1,5 @@
 venv
 .git
 db.sqlite3
-.env
 .idead
 .vscode

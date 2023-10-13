@@ -1,5 +1,6 @@
 from django.db.models import Count
 from django.contrib import admin
+from django.utils.html import format_html
 
 from recipes.models import (
     Ingredient, Tag, Recipe,
@@ -27,11 +28,13 @@ class IngredientAdmin(BaseAdmin):
 
 class IngredientInline(admin.TabularInline):
     model = RecipeIngredient
+    min_num = 1
     extra = 1
 
 
 class TagInline(admin.TabularInline):
     model = RecipeTag
+    min_num = 1
     extra = 1
 
 
@@ -45,6 +48,7 @@ class RecipeAdmin(BaseAdmin):
         'id',
         'author',
         'name',
+        'image_tag',
         'favorited_count',
     )
     list_filter = (
@@ -57,16 +61,23 @@ class RecipeAdmin(BaseAdmin):
     def get_queryset(self, request):
         queryset = super(RecipeAdmin, self).get_queryset(request)
         return queryset.annotate(
-            favorited_count=Count('in_favorite')
+            favorited_count=Count('in_favorite__recipe')
         )
 
     def favorited_count(self, obj):
         return obj.favorited_count
 
+    def image_tag(self, obj):
+        return format_html(
+            '<img src="{}" width=auto height="30" />'.format(obj.image.url)
+        )
+
 
 @admin.register(Tag)
 class TagAdmin(BaseAdmin):
-    pass
+    prepopulated_fields = {
+        'slug': ('name',)
+    }
 
 
 @admin.register(Favorite)

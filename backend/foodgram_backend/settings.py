@@ -1,17 +1,22 @@
 import os
 
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
 from pathlib import Path
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ime(2s@%-w5vb)lv42fm^58-a85in-z40&(yv1*p7m*%#fxkw2'
+SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'locallhost', 'backend']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default=['locallhost']).split(', ')
 
 
 # Application definition
@@ -27,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'djoser',
+    'colorfield',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
