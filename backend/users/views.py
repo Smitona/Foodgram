@@ -1,9 +1,7 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
 from api.pagination import ResultsSetPagination
-
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from users.models import CustomUser, UserFollower
 from users.serializers import FollowSerializer, SubscribeSerializer
 

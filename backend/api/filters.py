@@ -1,7 +1,5 @@
-from django_filters import (
-    CharFilter, ChoiceFilter, ModelMultipleChoiceFilter,
-    FilterSet, ModelChoiceFilter
-)
+from django_filters import (CharFilter, ChoiceFilter, FilterSet,
+                            ModelChoiceFilter, ModelMultipleChoiceFilter)
 from recipes.models import Ingredient, Recipe, Tag
 from users.models import CustomUser
 

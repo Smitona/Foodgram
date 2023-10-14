@@ -1,0 +1,42 @@
+version: '3.3'
+
+volumes:
+  fd_pg_data:
+  static:
+  media:
+
+services:
+
+  db:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - fd_pg_data:/var/lib/postgresql/data
+
+  backend:
+    image: smitona/fd_backend
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - static:/app/backend_static/
+      - media:/media/
+
+  frontend:
+    image: smitona/fd_frontend
+    depends_on:
+      - backend
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+
+  gateway:
+    image: smitona/fd_gateway
+    env_file: .env
+    depends_on:
+      - frontend
+    ports:
+      - 9090:80
+    volumes:
+      - static:/var/html/static/
+      - media:/media/

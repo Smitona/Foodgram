@@ -1,28 +1,20 @@
-from django.shortcuts import get_object_or_404
-from django.db.models import Exists, OuterRef, Prefetch, Sum, F
-from django.http import HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly, IsAuthenticated
-)
-
 from api.filters import IngredientFilter, RecipeFilter
-from api.serializers import (
-    RecipeSerializer, RecipeCreateSerializer,
-    IngredientListSerializer, TagSerializer,
-)
-from api.permissions import AuthorOrReadOnly
 from api.pagination import ResultsSetPagination
-
-from recipes.models import (
-    Ingredient, RecipeIngredient, Tag, Recipe, Favorite, Cart
-)
-
+from api.permissions import AuthorOrReadOnly
+from api.serializers import (IngredientListSerializer, RecipeCreateSerializer,
+                             RecipeSerializer, TagSerializer)
+from django.db.models import Exists, F, OuterRef, Prefetch, Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Cart, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, Tag)
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 from users.serializers import ShortRecipeSerializer
 
 
@@ -54,9 +46,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self, *args, **kwargs):
         recipes = Recipe.objects.prefetch_related(Prefetch(
-            'ingredients',
+            'recipe_ingredients',
             queryset=RecipeIngredient.objects.select_related(
-                'recipe', 'ingredient'
+                'ingredient'
             )
         )).select_related('author')
 

@@ -1,7 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-
-from users.views import SubscribeViewSet, SubscribeListViewSet
+from users.views import SubscribeListViewSet, SubscribeViewSet
 
 router = routers.DefaultRouter()
 

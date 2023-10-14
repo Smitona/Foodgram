@@ -1,10 +1,7 @@
-from django.db import models
-from django.core.validators import (
-    RegexValidator, MaxValueValidator, MinValueValidator
-)
-
 from colorfield.fields import ColorField
-
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
+from django.db import models
 from users.models import CustomUser
 
 
@@ -80,6 +77,7 @@ class Recipe(models.Model):
         Ingredient,
         blank=False,
         through='RecipeIngredient',
+        related_name='ingr_in_recipe'
     )
     name = models.CharField(
         max_length=200,

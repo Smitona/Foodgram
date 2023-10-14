@@ -1,12 +1,8 @@
-from django.db.models import Count
 from django.contrib import admin
+from django.db.models import Count
 from django.utils.html import format_html
-
-from recipes.models import (
-    Ingredient, Tag, Recipe,
-    RecipeTag, RecipeIngredient,
-    Favorite, Cart
-)
+from recipes.models import (Cart, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, RecipeTag, Tag)
 
 
 class BaseAdmin(admin.ModelAdmin):
