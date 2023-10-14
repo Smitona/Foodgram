@@ -37,7 +37,7 @@ jobs:
 
     - name: Test with flake8 and django tests
       env:
-        POSTGRES_USER: oodgram_user
+        POSTGRES_USER: foodgram_user
         POSTGRES_PASSWORD: foodgram_password
         POSTGRES_DB: foodgram
 
