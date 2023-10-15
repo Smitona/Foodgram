@@ -81,7 +81,8 @@ class TagAdmin(BaseAdmin):
 
     def color_tag(self, obj):
         return format_html(
-            '<span style="color: {};"></span>'.format(obj.color)
+            '<span style="color: #{};">{}</span>',
+            obj.color
         )
 
 
