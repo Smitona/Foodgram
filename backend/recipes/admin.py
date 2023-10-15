@@ -76,8 +76,13 @@ class TagAdmin(BaseAdmin):
     }
     list_display = (
         'name',
-        'color'
+        'color_tag'
     )
+
+    def color_tag(self, obj):
+        return format_html(
+            '<span style="color: {};"></span>'.format(obj.color)
+        )
 
 
 @admin.register(Favorite)
