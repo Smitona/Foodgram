@@ -74,6 +74,10 @@ class TagAdmin(BaseAdmin):
     prepopulated_fields = {
         'slug': ('name',)
     }
+    list_display = (
+        'name',
+        'color'
+    )
 
 
 @admin.register(Favorite)

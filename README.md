@@ -3,11 +3,10 @@
 
 
 *Сайт доступен по ссылке [projectforpracticum.myftp.biz/recipes/](http://projectforpracticum.myftp.biz/recipes/)*
-#### Доступ в админку:
+#### Доступ в админку [projectforpracticum.myftp.biz/recipes/admin/](https://projectforpracticum.myftp.biz/admin/):
 
-admn@ya.ru
-
-admin123
+Логин — `admn@ya.ru`
+Пароль — `admin123`
 
 
 ### Зарегстрировавшись, вы получаете возможность:
