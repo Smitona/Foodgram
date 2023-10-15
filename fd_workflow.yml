@@ -107,7 +107,7 @@ jobs:
         script: |
             cd foodgram
 
-            sudo system prune -af
+            sudo docker system prune -a
 
             sudo docker compose -f docker-compose.yml pull
             sudo docker compose -f docker-compose.yml down

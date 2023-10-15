@@ -17,6 +17,8 @@ DEBUG = os.getenv('DEBUG', default=False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='locallhost').split(', ')
 
+CSRF_TRUSTED_ORIGINS = ['https://projectforpracticum.myftp.biz']
+
 
 # Application definition
 
