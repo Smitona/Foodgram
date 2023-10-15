@@ -76,6 +76,7 @@ class TagAdmin(BaseAdmin):
     }
     list_display = (
         'name',
+        'color',
         'color_tag'
     )
 
