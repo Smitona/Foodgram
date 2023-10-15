@@ -6,6 +6,7 @@
 #### Доступ в админку [projectforpracticum.myftp.biz/recipes/admin/](https://projectforpracticum.myftp.biz/admin/):
 
 Логин — `admn@ya.ru`
+
 Пароль — `admin123`
 
 
