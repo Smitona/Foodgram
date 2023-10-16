@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
-                            RecipeIngredient, Tag)
+                            RecipeIngredient, Tag, RecipeTag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -45,12 +45,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering = ('-pub_date',)
 
     def get_queryset(self, *args, **kwargs):
-        recipes = Recipe.objects.prefetch_related(Prefetch(
-            'recipe_ingredients',
-            queryset=RecipeIngredient.objects.select_related(
-                'ingredient'
-            )
-        )).select_related('author')
+        recipe_ingr = RecipeIngredient.objects.select_related(
+            'ingredient'
+        )
+        recipe_tag = RecipeTag.objects.select_related(
+            'tag'
+        )
+        recipes = Recipe.objects.prefetch_related(
+            Prefetch('recipe_ingredients', queryset=recipe_ingr),
+            Prefetch('tag_for_recipe', queryset=recipe_tag)
+        ).select_related('author')
 
         if self.request.user.is_authenticated:
             recipes = recipes.annotate(

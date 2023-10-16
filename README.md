@@ -5,7 +5,7 @@
 *Сайт доступен по ссылке [projectforpracticum.myftp.biz/recipes/](http://projectforpracticum.myftp.biz/recipes/)*
 #### Доступ в админку [projectforpracticum.myftp.biz/recipes/admin/](https://projectforpracticum.myftp.biz/admin/):
 
-Логин — `admn@ya.ru`
+Логин — `admin@ya.ru`
 
 Пароль — `admin123`
 
