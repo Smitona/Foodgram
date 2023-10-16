@@ -139,7 +139,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
-                {'ingredients': 'Рецепт нельзя создать без ингредиентов!'},
+                'Рецепт нельзя создать без ингредиентов!',
             )
         names = []
         for ingredient in ingredients:
@@ -148,17 +148,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             names.append(ingredient_name)
         if len(names) != len(set(names)):
             raise serializers.ValidationError(
-                [[['Ингредиенты не могут повторяться!']]]
+                'Ингредиенты не могут повторяться!',
             )
 
         tags = data.get('tags')
         if not tags:
             raise serializers.ValidationError(
-                {'tags': 'Рецепту нужен хотя бы один тег!'}
+                'Рецепту нужен хотя бы один тег!',
             )
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError(
-                {'tags': 'Теги должны быть уникальными!'}
+                'Теги должны быть уникальными!',
             )
 
         return data
