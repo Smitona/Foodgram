@@ -8,8 +8,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
-        return obj.followers.filter(
-            follower=self.context.get('user'),
+        user = self.context['request'].user
+        return user.followers.filter(
             author=obj
         ).exists()
 
@@ -26,12 +26,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class UserMeSerializer(CustomUserSerializer):
+    is_subscribed = serializers.BooleanField(
+        read_only=True, default=False
+    )
+
     class Meta:
         model = CustomUser
         fields = CustomUserSerializer.Meta.fields
-        read_only_fields = (
-            'is_subscribed',
-        )
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -82,7 +83,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return SubscribeSerializer(
-            instance.author, context=self.context
+            instance, context=self.context
         ).data
 
 
