@@ -48,12 +48,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe_ingr = RecipeIngredient.objects.select_related(
             'ingredient'
         )
-        recipe_tag = RecipeTag.objects.select_related(
-            'tag'
-        )
         recipes = Recipe.objects.prefetch_related(
             Prefetch('recipe_ingredients', queryset=recipe_ingr),
-            Prefetch('tag_for_recipe', queryset=recipe_tag)
+            'tags'
         ).select_related('author')
 
         if self.request.user.is_authenticated:
