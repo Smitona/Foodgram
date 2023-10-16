@@ -46,10 +46,37 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
+class SubscribeSerializer(serializers.ModelSerializer):
+    recipes = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.BooleanField(read_only=True)
+
+    def get_recipes(self, obj):
+        recipes = Recipe.objects.filter(author=obj)
+        return ShortRecipeSerializer(
+            recipes, many=True, context=self.context
+        ).data
+
+    def get_recipes_count(self, obj):
+        recipes = Recipe.objects.filter(author=obj)
+        return recipes.count()
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
+
+
 class FollowSerializer(serializers.ModelSerializer):
-    # follower = serializers.HiddenField(
-    # default=serializers.CurrentUserDefault(),
-    # )
+    author = SubscribeSerializer(read_only=True)
 
     class Meta:
         model = UserFollower
@@ -78,39 +105,3 @@ class FollowSerializer(serializers.ModelSerializer):
                 )
 
             return data
-
-    def to_representation(self, instance):
-        return SubscribeSerializer(
-            instance, context={
-                'request': self.context.get('request')
-            }
-        ).data
-
-
-class SubscribeSerializer(serializers.ModelSerializer):
-    recipes = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.SerializerMethodField(read_only=True)
-    is_subscribed = serializers.BooleanField(read_only=True)
-
-    def get_recipes(self, obj):
-        recipes = Recipe.objects.filter(author=obj)
-        return ShortRecipeSerializer(
-            recipes, many=True, context=self.context
-        ).data
-
-    def get_recipes_count(self, obj):
-        recipes = Recipe.objects.filter(author=obj)
-        return recipes.count()
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
-        )
