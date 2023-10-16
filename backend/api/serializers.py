@@ -148,7 +148,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             names.append(ingredient_name)
         if len(names) != len(set(names)):
             raise serializers.ValidationError(
-                {'ingredients': 'Ингредиенты не могут повторяться!'}
+                [[['Ингредиенты не могут повторяться!']]]
             )
 
         tags = data.get('tags')
