@@ -26,13 +26,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class UserMeSerializer(CustomUserSerializer):
-    is_subscribed = serializers.BooleanField(
-        read_only=True, default=False
-    )
-
     class Meta:
         model = CustomUser
         fields = CustomUserSerializer.Meta.fields
+        read_only_fields = (
+            'is_subscribed',
+        )
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
