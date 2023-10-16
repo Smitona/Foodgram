@@ -47,15 +47,14 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    follower = serializers.HiddenField(
-        default=serializers.CurrentUserDefault(),
-    )
+    # follower = serializers.HiddenField(
+    # default=serializers.CurrentUserDefault(),
+    # )
 
     class Meta:
         model = UserFollower
         fields = (
             'author',
-            'follower'
         )
 
     def validate(self, data):
