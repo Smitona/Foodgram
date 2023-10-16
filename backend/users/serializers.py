@@ -49,7 +49,6 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     follower = serializers.HiddenField(
         default=serializers.CurrentUserDefault(),
-        read_only=True
     )
 
     class Meta:
