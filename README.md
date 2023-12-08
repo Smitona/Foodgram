@@ -2,14 +2,6 @@
 Площадка, чтобы поделиться рецептами с фото.
 
 
-*Сайт доступен по ссылке [projectforpracticum.myftp.biz/recipes/](http://projectforpracticum.myftp.biz/recipes/)*
-#### Доступ в админку [projectforpracticum.myftp.biz/recipes/admin/](https://projectforpracticum.myftp.biz/admin/):
-
-Логин — `admin@ya.ru`
-
-Пароль — `admin123`
-
-
 ### Зарегстрировавшись, вы получаете возможность:
 * Опубликовать рецепт с фото и ингредиентами. Ингредиенты есть в базе.
 * Добавить рецепт в избранное.
@@ -89,4 +81,4 @@
 ```
 _____________________________________________________________________________________________________________________________________________
 
-Проект работает на основе Django REST Framework.
+Стек: Django. Python, React, REST API, Doker.
