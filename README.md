@@ -99,4 +99,4 @@ docker-compose up
 
 ---
 
-Стек: Django. Python, React, REST API, Doker, CI/CD.
+### Стек Django. Python, React, REST API, Doker, CI/CD.
