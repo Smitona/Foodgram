@@ -66,13 +66,13 @@
         {
             "id": 2,
             "name": "Яичница с помидорами и перцем",
-            "image": "http://projectforpracticum.myftp.biz/media/recipes/images/a28d88c3-3835-4eab-821a-01a82b1ebc30.png",
+            "image": "http://locallhost/media/recipes/images/a28d88c3-3835-4eab-821a-01a82b1ebc30.png",
             "cooking_time": 8
         },
         {
             "id": 1,
             "name": "Малиновый чай",
-            "image": "http://projectforpracticum.myftp.biz/media/recipes/images/c357bca7-d9fd-4e97-ae5c-218cf1a030a3.png",
+            "image": "http://locallhost/media/recipes/images/c357bca7-d9fd-4e97-ae5c-218cf1a030a3.png",
             "cooking_time": 8
         }
     ],
