@@ -83,7 +83,7 @@
 ### Запуск проекта:
 1. Клонируйте репозиторий
 ```
-git clone git@github.com:Smitona/foodgram-project-react.git
+git clone git@github.com:Smitona/Foodgram.git
 ```
 3. Установите окружение и зависимости
 ```
