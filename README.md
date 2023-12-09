@@ -81,12 +81,21 @@
 ```
 
 ### Запуск проекта:
-1. Клонируйте репозиторий             ```git clone git@github.com:Smitona/foodgram-project-react.git```
-2. Установите окружение и зависимости ```cd backend```
-                                      ```python -m venv venv```
-                                      ```pip install -r requirements```
-3. Запустите проект из контейнеров    ```cd ..```
-                                      ```docker-compose up```
+1. Клонируйте репозиторий
+```
+git clone git@github.com:Smitona/foodgram-project-react.git
+```
+3. Установите окружение и зависимости
+```
+cd backend
+python -m venv venv
+pip install -r requirements
+```
+6. Запустите проект из контейнеров
+```
+cd ..
+docker-compose up
+```
 _____________________________________________________________________________________________________________________________________________
 
 Стек: Django. Python, React, REST API, Doker, CI/CD.
